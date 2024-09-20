@@ -34,4 +34,14 @@ public class ProductController implements ProductResource {
 
         return new Product(productId, "name-" + productId, 123, serviceUtil.getServiceAddress());
     }
+
+    @Override
+    public Product createProduct(Product body) {
+        return null;
+    }
+
+    @Override
+    public void deleteProduct(int productId) {
+
+    }
 }

@@ -4,14 +4,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "ProductComposite", description = "REST API for composite product information")
 public interface ProductCompositeResource {
+    /**
+     * Sample usage:
+     * curl $HOST:PORT/product-composite/1
+     *
+     * @param productId id of the product
+     * @return the composite product if found, else null
+     */
     @Operation(
-            summary =  "${api.product-composite.get-composite-product.description}",
-            description = "${api.product-composite.get-composite-product.notes}")
+            summary = "${api.product-composite.get-composite-product.description}",
+            description = "${api.product-composite.get-composite-product.notes}"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description}"),
             @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
@@ -22,4 +29,43 @@ public interface ProductCompositeResource {
             value = "/product-composite/{productId}",
             produces = "application/json")
     ProductAggregate getProduct(@PathVariable int productId);
+
+    /**
+     * Sample usage
+     * curl -X POST $HOST:$PORT/product-composite \
+     * -H "Content-Type: application/json" \
+     * -d '{"productId":1,"name":"name","weight":5}'
+     *
+     * @param body new composite product
+     * @return A JSON representation of the newly created composite product
+     */
+    @Operation(
+            summary = "${api.product-composite.create-composite-product.description}",
+            description = "${api.product-composite.create-composite-product.notes}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
+            @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
+    })
+    @PostMapping(
+            value = "/product-composite",
+            consumes = "application/json",
+            produces = "application/json")
+    ProductAggregate createProduct(@RequestBody ProductAggregate body);
+
+    /**
+     * Sample usage: "curl -X DELETE $HOST:$PORT/product-composite/1"
+     *
+     * @param productId id of the product
+     */
+    @Operation(
+            summary = "${api.product-composite.delete-composite-product.description}",
+            description = "${api.product-composite.delete-composite-product.notes}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
+            @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
+    })
+    @DeleteMapping(value = "/product-composite/{productId}")
+    void deleteProduct(@PathVariable int productId);
 }
