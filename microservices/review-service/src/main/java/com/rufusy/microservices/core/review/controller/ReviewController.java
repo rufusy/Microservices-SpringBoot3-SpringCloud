@@ -41,4 +41,14 @@ public class ReviewController implements ReviewResource {
 
         return list;
     }
+
+    @Override
+    public Review createReview(Review body) {
+        return null;
+    }
+
+    @Override
+    public void deleteReview(int productId) {
+
+    }
 }

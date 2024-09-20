@@ -36,6 +36,16 @@ public class ProductCompositeController implements ProductCompositeResource {
         return createProductAggregate(product, recommendations, reviews, serviceUtil.getServiceAddress());
     }
 
+    @Override
+    public ProductAggregate createProduct(ProductAggregate body) {
+        return null;
+    }
+
+    @Override
+    public void deleteProduct(int productId) {
+
+    }
+
     private ProductAggregate createProductAggregate(
             Product product,
             List<Recommendation> recommendations,
