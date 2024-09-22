@@ -6,6 +6,8 @@ services:
     image: rufusy/product-service
     container_name: product-service
     mem_limit: 512m
+    ports:
+      - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -17,6 +19,8 @@ services:
     image: rufusy/recommendation-service
     container_name: rec-service
     mem_limit: 512m
+    ports:
+      - "8082:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -28,6 +32,8 @@ services:
     image: rufusy/review-service
     container_name: rev-service
     mem_limit: 512m
+    ports:
+      - "8083:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:

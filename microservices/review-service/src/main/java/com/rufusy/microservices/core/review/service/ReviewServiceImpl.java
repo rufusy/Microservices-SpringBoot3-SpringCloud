@@ -7,6 +7,7 @@ import com.rufusy.microservices.core.review.persistence.ReviewEntity;
 import com.rufusy.microservices.core.review.persistence.ReviewRepository;
 import com.rufusy.microservices.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class ReviewServiceImpl implements ReviewService{
+public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository repository;
     private final ReviewMapper mapper;
     private final ServiceUtil serviceUtil;
@@ -28,11 +29,17 @@ public class ReviewServiceImpl implements ReviewService{
     @Transactional
     @Override
     public Review createReview(Review body) {
-        ReviewEntity entity = mapper.apiToEntity(body);
-        ReviewEntity newEntity = repository.save(entity);
+        try {
+            ReviewEntity entity = mapper.apiToEntity(body);
+            ReviewEntity newEntity = repository.save(entity);
 
-        log.debug("createReview: created a review entity: {}/{}", body.getProductId(), body.getReviewId());
-        return mapper.entityToApi(newEntity);
+            log.debug("createReview: created a review entity: {}/{}", body.getProductId(), body.getReviewId());
+            return mapper.entityToApi(newEntity);
+
+        } catch (DataIntegrityViolationException dive) {
+            throw new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() +
+                    ", Review Id:" + body.getReviewId());
+        }
     }
 
     @Override

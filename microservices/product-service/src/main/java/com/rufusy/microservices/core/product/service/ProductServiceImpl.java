@@ -9,6 +9,7 @@ import com.rufusy.microservices.core.product.persistence.ProductRepository;
 import com.rufusy.microservices.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -45,11 +46,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createProduct(Product body) {
-        ProductEntity entity = mapper.apiToEntity(body);
-        ProductEntity newEntity = repository.save(entity);
+        try{
+            ProductEntity entity = mapper.apiToEntity(body);
+            ProductEntity newEntity = repository.save(entity);
 
-        log.debug("createProduct: entity created for productId: {}", body.getProductId());
-        return mapper.entityToApi(newEntity);
+            log.debug("createProduct: entity created for productId: {}", body.getProductId());
+            return mapper.entityToApi(newEntity);
+        }catch (DuplicateKeyException dke) {
+            throw new InvalidInputException("Duplicate key, Product Id: " + body.getProductId());
+        }
     }
 
     @Override

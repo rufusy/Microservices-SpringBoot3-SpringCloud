@@ -3,7 +3,6 @@ package com.rufusy.microservices.core.product.controller;
 import com.rufusy.microservices.api.core.product.Product;
 import com.rufusy.microservices.api.core.product.ProductResource;
 import com.rufusy.microservices.core.product.service.ProductService;
-import com.rufusy.microservices.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;

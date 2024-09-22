@@ -8,6 +8,7 @@ import com.rufusy.microservices.core.recommendation.persistence.RecommendationRe
 import com.rufusy.microservices.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,9 +48,16 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Transactional
     @Override
     public Recommendation createRecommendation(Recommendation body) {
-        RecommendationEntity newEntity = repository.save(mapper.apiToEntity(body));
-        log.debug("createRecommendation: created a recommendation entity: {}/{}", body.getProductId(), body.getRecommendationId());
-        return mapper.entityToApi(newEntity);
+        try {
+            RecommendationEntity entity = mapper.apiToEntity(body);
+            RecommendationEntity newEntity = repository.save(entity);
+
+            log.debug("createRecommendation: created a recommendation entity: {}/{}", body.getProductId(), body.getRecommendationId());
+            return mapper.entityToApi(newEntity);
+
+        } catch (DuplicateKeyException dke) {
+            throw new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Recommendation Id:" + body.getRecommendationId());
+        }
     }
 
     @Transactional
