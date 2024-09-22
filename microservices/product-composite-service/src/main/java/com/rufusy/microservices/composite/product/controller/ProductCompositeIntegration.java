@@ -57,7 +57,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     @Override
     public Product getProduct(int productId) {
         try {
-            String url = productServiceUrl + productId;
+            String url = productServiceUrl  + "/" + productId;
             log.debug("Will call getProduct API on URL: {}", url);
 
             Product product = restTemplate.getForObject(url, Product.class);
