@@ -1,15 +1,15 @@
 package com.rufusy.microservices.api.composite.product;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
-@RequiredArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Setter
+@Builder
 public class ServiceAddresses {
-    private final String cmp;
-    private final String pro;
-    private final String rev;
-    private final String rec;
+    private String cmp;
+    private String pro;
+    private String rev;
+    private String rec;
 }
