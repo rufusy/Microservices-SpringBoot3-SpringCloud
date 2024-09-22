@@ -1,14 +1,15 @@
 package com.rufusy.microservices.api.composite.product;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
-@RequiredArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Setter
+@Builder
 public class RecommendationSummary {
-    private final int recommendationId;
-    private final String author;
-    private final int rate;
+    private int recommendationId;
+    private String author;
+    private String content;
+    private int rate;
 }

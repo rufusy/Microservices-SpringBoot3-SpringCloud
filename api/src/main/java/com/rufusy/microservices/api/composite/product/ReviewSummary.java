@@ -1,14 +1,15 @@
 package com.rufusy.microservices.api.composite.product;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
-@RequiredArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Setter
+@Builder
 public class ReviewSummary {
-    private final int reviewId;
-    private final String author;
-    private final String subject;
+    private int reviewId;
+    private String author;
+    private String subject;
+    private String content;
 }

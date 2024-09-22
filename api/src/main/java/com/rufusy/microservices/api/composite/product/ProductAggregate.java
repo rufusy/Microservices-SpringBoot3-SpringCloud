@@ -1,19 +1,19 @@
 package com.rufusy.microservices.api.composite.product;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Setter
+@Builder
 public class ProductAggregate {
-    private final int productId;
-    private final String name;
-    private final int weight;
-    private final List<RecommendationSummary> recommendations;
-    private final List<ReviewSummary> reviews;
-    private final ServiceAddresses serviceAddresses;
+    private int productId;
+    private String name;
+    private int weight;
+    private List<RecommendationSummary> recommendations;
+    private List<ReviewSummary> reviews;
+    private ServiceAddresses serviceAddresses;
 }
