@@ -27,9 +27,10 @@ jar {
 }
 
 ext {
-	mapstructVersion = "1.5.3.Final"
+	mapstructVersion = "1.6.2"
 	lombokVerion = "1.18.28"
 	testContainersBOMVersion = "1.15.2"
+	hamcrestVersion = "2.2"
 }
 
 dependencies {
@@ -60,5 +61,6 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	maxParallelForks = 1
 }
 

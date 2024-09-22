@@ -2,9 +2,7 @@ package com.rufusy.microservices.core.product.controller;
 
 import com.rufusy.microservices.api.core.product.Product;
 import com.rufusy.microservices.api.core.product.ProductResource;
-import com.rufusy.microservices.api.exceptions.InvalidInputException;
-import com.rufusy.microservices.api.exceptions.NotFoundException;
-import com.rufusy.microservices.util.ServiceUtil;
+import com.rufusy.microservices.core.product.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,36 +10,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 public class ProductController implements ProductResource {
-
-    private final ServiceUtil serviceUtil;
+    private final ProductService productService;
 
     @Autowired
-    public ProductController(ServiceUtil serviceUtil) {
-        this.serviceUtil = serviceUtil;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
     @Override
     public Product getProduct(int productId) {
-        log.debug("/product return the found product for productId={}", productId);
-
-        if (productId < 1) {
-            throw new InvalidInputException("Invalid productId: " + productId);
-        }
-
-        if (productId == 13) {
-            throw new NotFoundException("No product found for productId: " + productId);
-        }
-
-        return new Product(productId, "name-" + productId, 123, serviceUtil.getServiceAddress());
+        return productService.getProduct(productId);
     }
 
     @Override
     public Product createProduct(Product body) {
-        return null;
+        return productService.createProduct(body);
     }
 
     @Override
     public void deleteProduct(int productId) {
-
+        productService.deleteProductById(productId);
     }
 }

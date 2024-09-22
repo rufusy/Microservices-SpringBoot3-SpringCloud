@@ -7,7 +7,7 @@ import org.testcontainers.containers.MySQLContainer;
 
 public abstract class MySqlTestBase {
     // Extend startup timeout since a MySQL container starts very slow
-    private static final JdbcDatabaseContainer<?> database = new MySQLContainer("mysql:8.0.32")
+    private static JdbcDatabaseContainer<?> database = new MySQLContainer("mysql:8.0.32")
             .withConnectTimeoutSeconds(300);
 
     static {

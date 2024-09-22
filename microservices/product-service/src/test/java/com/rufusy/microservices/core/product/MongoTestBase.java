@@ -3,9 +3,14 @@ package com.rufusy.microservices.core.product;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+
+import java.time.Duration;
 
 public abstract class MongoTestBase {
-    private static final MongoDBContainer database = new MongoDBContainer("mongo:6.0.4");
+    private static MongoDBContainer database = new MongoDBContainer("mongo:6.0.4")
+            .waitingFor(Wait.forListeningPort())
+            .withStartupTimeout(Duration.ofMinutes(2));
 
     static {
         database.start();
