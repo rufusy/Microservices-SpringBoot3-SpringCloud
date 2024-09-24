@@ -1,14 +1,20 @@
 package com.rufusy.microservices.core.review;
 
 import com.rufusy.microservices.api.core.review.Review;
+import com.rufusy.microservices.api.event.Event;
 import com.rufusy.microservices.core.review.persistence.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.function.Consumer;
+
+import static com.rufusy.microservices.api.event.Event.Type.CREATE;
+import static com.rufusy.microservices.api.event.Event.Type.DELETE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
@@ -23,6 +29,10 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
     @Autowired
     private ReviewRepository repository;
 
+    @Autowired
+    @Qualifier("messageProcessor")
+    private Consumer<Event<Integer, Review>> messageProcessor;
+
     @BeforeEach
     void setupDb() {
         repository.deleteAll();
@@ -35,10 +45,10 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
 
         assertEquals(0, repository.findByProductId(productId).size());
 
-        postAndVerifyReview(productId, 1, OK);
-        postAndVerifyReview(productId, 2, OK);
-        postAndVerifyReview(productId, 3, OK);
-        postAndVerifyReview(productId, 4, OK);
+        sendCreateReviewEvent(productId, 1);
+        sendCreateReviewEvent(productId, 2);
+        sendCreateReviewEvent(productId, 3);
+        sendCreateReviewEvent(productId, 4);
 
 
         assertEquals(4, repository.findByProductId(productId).size());
@@ -55,13 +65,13 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
         int productId = 1;
         int reviewId = 1;
 
-        postAndVerifyReview(productId, reviewId, OK);
+        sendCreateReviewEvent(productId, reviewId);
         assertEquals(1, repository.findByProductId(productId).size());
 
-        deleteAndVerifyReviewsByProductId(productId, OK);
+        sendDeleteReviewEvent(productId);
         assertEquals(0, repository.findByProductId(productId).size());
 
-        deleteAndVerifyReviewsByProductId(productId, OK);
+        sendDeleteReviewEvent(productId);
     }
 
     @Test
@@ -129,5 +139,16 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)
                 .expectBody();
+    }
+
+    private void sendCreateReviewEvent(int productId, int reviewId) {
+        Review review = new Review(productId, reviewId, "Author " + reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
+        Event<Integer, Review> event = new Event(CREATE, productId, review);
+        messageProcessor.accept(event);
+    }
+
+    private void sendDeleteReviewEvent(int productId) {
+        Event<Integer, Review> event = new Event(DELETE, productId, null);
+        messageProcessor.accept(event);
     }
 }

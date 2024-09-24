@@ -1,13 +1,17 @@
 package com.rufusy.microservices.core.recommendation;
 
 import com.rufusy.microservices.api.core.recommendation.Recommendation;
+import com.rufusy.microservices.api.event.Event;
 import com.rufusy.microservices.core.recommendation.persistence.RecommendationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpStatus.*;
@@ -23,6 +27,10 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
     @Autowired
     private RecommendationRepository repository;
 
+    @Autowired
+    @Qualifier("messageProcessor")
+    private Consumer<Event<Integer, Recommendation>> messageProcessor;
+
     @Test
     void contextLoads() {
     }
@@ -36,10 +44,10 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
     void getRecommendationsByProductId() {
         int productId = 1;
 
-        postAndVerifyRecommendation(productId, 1, OK);
-        postAndVerifyRecommendation(productId, 2, OK);
-        postAndVerifyRecommendation(productId, 3, OK);
-        postAndVerifyRecommendation(productId, 4, OK);
+        sendCreateRecommendationEvent(productId, 1);
+        sendCreateRecommendationEvent(productId, 2);
+        sendCreateRecommendationEvent(productId, 3);
+        sendCreateRecommendationEvent(productId, 4);
 
         assertEquals(4, repository.findByProductId(productId).size());
 
@@ -89,13 +97,13 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
         int productId = 1;
         int recommendationId = 1;
 
-        postAndVerifyRecommendation(productId, recommendationId, OK);
+        sendCreateRecommendationEvent(productId, recommendationId);
         assertEquals(1, repository.findByProductId(productId).size());
 
-        deleteAndVerifyRecommendationsByProductId(productId, OK);
+        sendDeleteRecommendationEvent(productId);
         assertEquals(0, repository.findByProductId(productId).size());
 
-        deleteAndVerifyRecommendationsByProductId(productId, OK);
+        sendDeleteRecommendationEvent(productId);
     }
 
     private WebTestClient.BodyContentSpec getAndVerifyRecommendationsByProductId(int productId, HttpStatus expectedStatus) {
@@ -132,5 +140,16 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)
                 .expectBody();
+    }
+
+    private void sendCreateRecommendationEvent(int productId, int recommendationId){
+        Recommendation recommendation = new Recommendation(productId, recommendationId, "Author " + recommendationId, recommendationId, "Content " + recommendationId, "SA");
+        Event<Integer, Recommendation> event = new Event<>(Event.Type.CREATE, productId, recommendation);
+        messageProcessor.accept(event);
+    }
+
+    private void sendDeleteRecommendationEvent(int productId){
+        Event<Integer, Recommendation> event = new Event<>(Event.Type.DELETE, productId, null);
+        messageProcessor.accept(event);
     }
 }
