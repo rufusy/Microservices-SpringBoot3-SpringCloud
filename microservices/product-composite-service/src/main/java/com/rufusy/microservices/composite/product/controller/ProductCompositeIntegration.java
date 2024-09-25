@@ -7,14 +7,20 @@ import com.rufusy.microservices.api.core.recommendation.Recommendation;
 import com.rufusy.microservices.api.core.recommendation.RecommendationResource;
 import com.rufusy.microservices.api.core.review.Review;
 import com.rufusy.microservices.api.core.review.ReviewResource;
+import com.rufusy.microservices.api.event.Event;
+import com.rufusy.microservices.api.exceptions.EventProcessingException;
 import com.rufusy.microservices.api.exceptions.InvalidInputException;
 import com.rufusy.microservices.api.exceptions.NotFoundException;
 import com.rufusy.microservices.util.HttpErrorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -24,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.rufusy.microservices.api.event.Event.Type.CREATE;
+import static com.rufusy.microservices.api.event.Event.Type.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
@@ -35,19 +43,26 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     private final String recommendationServiceUrl;
     private final String reviewServiceUrl;
 
+    private final StreamBridge streamBridge;
+
     @Autowired
     public ProductCompositeIntegration(
             RestTemplate restTemplate,
             ObjectMapper mapper,
+            StreamBridge streamBridge,
+
             @Value("${app.product-service.host}") String productServiceHost,
             @Value("${app.product-service.port}") String productServicePort,
+
             @Value("${app.recommendation-service.host}") String recommendationServiceHost,
             @Value("${app.recommendation-service.port}") String recommendationServicePort,
+
             @Value("${app.review-service.host}") String reviewServiceHost,
             @Value("${app.review-service.port}") String reviewServicePort) {
 
         this.restTemplate = restTemplate;
         this.mapper = mapper;
+        this.streamBridge = streamBridge;
 
         productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product";
         recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation";
@@ -57,7 +72,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     @Override
     public Product getProduct(int productId) {
         try {
-            String url = productServiceUrl  + "/" + productId;
+            String url = productServiceUrl + "/" + productId;
             log.debug("Will call getProduct API on URL: {}", url);
 
             Product product = restTemplate.getForObject(url, Product.class);
@@ -73,29 +88,21 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     @Override
     public Product createProduct(Product body) {
         try {
-            String url = productServiceUrl;
-            log.debug("Will post a new product to URL: {}", url);
-
-            Product product = restTemplate.postForObject(url, body, Product.class);
-            assert product != null;
-            log.debug("Created a product with id: {}", product.getProductId());
-
-            return product;
-
-        } catch (HttpClientErrorException ex) {
-            throw handleHttpClientErrorException(ex);
+            sendMessage("products-out-0", new Event<>(CREATE, body.getProductId(), body));
+            return body;
+        } catch (MessageDeliveryException ex) {
+            log.warn("Failed to send {} event for productId: {}. Error message: {}", CREATE, body.getProductId(), ex.getMessage());
+            throw handleMessageException(ex);
         }
     }
 
     @Override
     public void deleteProduct(int productId) {
         try {
-            String url = productServiceUrl + "/" + productId;
-            log.debug("Will call the deleteProduct API on URL: {}", url);
-
-            restTemplate.delete(url);
-        } catch (HttpClientErrorException ex) {
-            throw handleHttpClientErrorException(ex);
+            sendMessage("products-out-0", new Event<>(DELETE, productId, null));
+        }catch (MessageDeliveryException ex) {
+            log.warn("Failed to send {} event for productId: {}. Error message: {}", DELETE, productId, ex.getMessage());
+            throw handleMessageException(ex);
         }
     }
 
@@ -106,7 +113,8 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
 
             log.debug("Will call getRecommendations API on URL: {}", url);
             List<Recommendation> recommendations = restTemplate
-                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Recommendation>>() {})
+                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Recommendation>>() {
+                    })
                     .getBody();
 
             assert recommendations != null;
@@ -122,14 +130,8 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     @Override
     public Recommendation createRecommendation(Recommendation body) {
         try {
-            String url = recommendationServiceUrl;
-            log.debug("Will post a new recommendation to URL: {}", url);
-
-            Recommendation recommendation = restTemplate.postForObject(url, body, Recommendation.class);
-            assert recommendation != null;
-            log.debug("Created a recommendation with id: {}", recommendation.getProductId());
-
-            return recommendation;
+            sendMessage("recommendations-out-0", new Event<>(CREATE, body.getProductId(), body));
+            return body;
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientErrorException(ex);
         }
@@ -138,13 +140,10 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     @Override
     public void deleteRecommendations(int productId) {
         try {
-            String url = recommendationServiceUrl + "?productId=" + productId;
-            log.debug("Will call the deleteRecommendations API on URL: {}", url);
-
-            restTemplate.delete(url);
-
-        } catch (HttpClientErrorException ex) {
-            throw handleHttpClientErrorException(ex);
+            sendMessage("recommendations-out-0", new Event<>(DELETE, productId, null));
+        } catch (MessageDeliveryException ex) {
+            log.warn("Failed to send {} event for productId: {}. Error message: {}", DELETE, productId, ex.getMessage());
+            throw handleMessageException(ex);
         }
     }
 
@@ -155,7 +154,8 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
 
             log.debug("Will call getReviews API on URL: {}", url);
             List<Review> reviews = restTemplate
-                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {})
+                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {
+                    })
                     .getBody();
 
             assert reviews != null;
@@ -170,31 +170,30 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     @Override
     public Review createReview(Review body) {
         try {
-            String url = reviewServiceUrl;
-            log.debug("Will post a new review to URL: {}", url);
-
-            Review review = restTemplate.postForObject(url, body, Review.class);
-            assert review != null;
-            log.debug("Created a review with id: {}", review.getProductId());
-
-            return review;
-
-        } catch (HttpClientErrorException ex) {
-            throw handleHttpClientErrorException(ex);
+            sendMessage("reviews-out-0", new Event<>(CREATE, body.getProductId(), body));
+            return body;
+        } catch (MessageDeliveryException ex) {
+            log.warn("Failed to send {} event for productId: {}. Error message: {}", CREATE, body.getProductId(), ex.getMessage());
+            throw handleMessageException(ex);
         }
     }
 
     @Override
     public void deleteReview(int productId) {
         try {
-            String url = reviewServiceUrl + "?productId=" + productId;
-            log.debug("Will call the deleteReviews API on URL: {}", url);
-
-            restTemplate.delete(url);
-
-        } catch (HttpClientErrorException ex) {
-            throw handleHttpClientErrorException(ex);
+            sendMessage("reviews-out-0", new Event<>(DELETE, productId, null));
+        } catch (MessageDeliveryException ex) {
+            log.warn("Failed to send {} event for productId: {}. Error message: {}", DELETE, productId, ex.getMessage());
+            throw handleMessageException(ex);
         }
+    }
+
+    private void sendMessage(String bindingName, Event<?, ?> event) {
+        log.debug("Sending a {} message to {}", event.getEventType(), bindingName);
+        Message<? extends Event<?, ?>> message = MessageBuilder.withPayload(event)
+                .setHeader("partitionKey", event.getKey())
+                .build();
+        streamBridge.send(bindingName, message);
     }
 
     private RuntimeException handleHttpClientErrorException(HttpClientErrorException ex) {
@@ -219,5 +218,9 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
         } catch (IOException e) {
             return ex.getMessage();
         }
+    }
+
+    private RuntimeException handleMessageException(MessageDeliveryException ex) {
+        return new EventProcessingException(ex.getMessage());
     }
 }

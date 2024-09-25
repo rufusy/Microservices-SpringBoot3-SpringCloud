@@ -1,14 +1,20 @@
 package com.rufusy.microservices.core.product;
 
 import com.rufusy.microservices.api.core.product.Product;
+import com.rufusy.microservices.api.event.Event;
 import com.rufusy.microservices.core.product.persistence.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.function.Consumer;
+
+import static com.rufusy.microservices.api.event.Event.Type.CREATE;
+import static com.rufusy.microservices.api.event.Event.Type.DELETE;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -24,6 +30,10 @@ class ProductServiceApplicationTests extends MongoTestBase {
     @Autowired
     private ProductRepository repository;
 
+    @Autowired
+    @Qualifier("messageProcessor")
+    private Consumer<Event<Integer, Product>> messageProcessor;
+
     @Test
     void contextLoads() {
     }
@@ -37,7 +47,7 @@ class ProductServiceApplicationTests extends MongoTestBase {
     void getProductById() {
         int productId = 1;
 
-        postAndVerifyProduct(productId, OK);
+        sendCreateProductEvent(productId);
         assertTrue(repository.findByProductId(productId).isPresent());
 
         getAndVerifyProduct(productId, OK)
@@ -74,13 +84,12 @@ class ProductServiceApplicationTests extends MongoTestBase {
     void deleteProduct() {
         int productId = 1;
 
-        postAndVerifyProduct(productId, OK);
+        sendCreateProductEvent(productId);
         assertTrue(repository.findByProductId(productId).isPresent());
 
-        deleteAndVerifyProduct(productId, OK);
+        sendDeleteProductEvent(productId);
         assertFalse(repository.findByProductId(productId).isPresent());
-
-        deleteAndVerifyProduct(productId, OK);
+        sendDeleteProductEvent(productId);
     }
 
     private WebTestClient.BodyContentSpec getAndVerifyProduct(int productId, HttpStatus expectedStatus) {
@@ -119,5 +128,18 @@ class ProductServiceApplicationTests extends MongoTestBase {
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)
                 .expectBody();
+    }
+
+    private void sendDeleteProductEvent(int productId) {
+        Event<Integer, Product> event = new Event<>(DELETE, productId, null);
+        messageProcessor.accept(event);
+    }
+
+    private void sendCreateProductEvent(int productId) {
+        Product product = Product.builder()
+                .productId(productId).name("Name " + productId).weight(productId).serviceAddress("SA")
+                .build();
+        Event<Integer, Product> event = new Event<>(CREATE, productId, product);
+        messageProcessor.accept(event);
     }
 }
