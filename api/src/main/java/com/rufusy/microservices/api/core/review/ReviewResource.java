@@ -1,6 +1,8 @@
 package com.rufusy.microservices.api.core.review;
 
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ public interface ReviewResource {
     @GetMapping(
             value = "/review",
             produces = "application/json")
-    List<Review> getReviews(@RequestParam(value = "productId") int productId);
+    Flux<Review> getReviews(@RequestParam(value = "productId") int productId);
 
     /**
      * Sample usage:
@@ -30,7 +32,7 @@ public interface ReviewResource {
             value = "/review",
             consumes = "application/json",
             produces = "application/json")
-    Review createReview(@RequestBody Review body);
+    Mono<Review> createReview(@RequestBody Review body);
 
     /**
      * Sample usage:
@@ -39,5 +41,5 @@ public interface ReviewResource {
      * @param productId id of the product
      */
     @DeleteMapping(value = "/review")
-    void deleteReview(@RequestParam(value = "productId") int productId);
+    Mono<Void> deleteReview(@RequestParam(value = "productId") int productId);
 }

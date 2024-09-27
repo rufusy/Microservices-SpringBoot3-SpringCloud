@@ -1,13 +1,13 @@
 package com.rufusy.microservices.core.review.service;
 
 import com.rufusy.microservices.api.core.review.Review;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ReviewService {
-    Review createReview(Review body);
+    Mono<Review> createReview(Review body);
 
-    List<Review> getReviews(int productId);
+    Flux<Review> getReviews(int productId);
 
-    void deleteReviews(int productId);
+    Mono<Void> deleteReviews(int productId);
 }

@@ -28,12 +28,12 @@ public class MessageProcessorConfig {
                 case CREATE -> {
                     Review review = event.getData();
                     log.info("Create review with ID: {}/{}", review.getProductId(), review.getReviewId());
-                    reviewService.createReview(review);
+                    reviewService.createReview(review).block();
                 }
                 case DELETE -> {
                     int productId = event.getKey();
                     log.info("Delete review with ProductID: {}", productId);
-                    reviewService.deleteReviews(productId);
+                    reviewService.deleteReviews(productId).block();
                 }
                 default -> {
                     String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";

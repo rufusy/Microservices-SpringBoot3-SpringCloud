@@ -2,15 +2,12 @@ package com.rufusy.microservices.core.recommendation.controller;
 
 import com.rufusy.microservices.api.core.recommendation.Recommendation;
 import com.rufusy.microservices.api.core.recommendation.RecommendationResource;
-import com.rufusy.microservices.api.exceptions.InvalidInputException;
 import com.rufusy.microservices.core.recommendation.service.RecommendationService;
-import com.rufusy.microservices.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
@@ -23,17 +20,17 @@ public class RecommendationController implements RecommendationResource {
     }
 
     @Override
-    public List<Recommendation> getRecommendations(int productId) {
+    public Flux<Recommendation> getRecommendations(int productId) {
         return service.getRecommendations(productId);
     }
 
     @Override
-    public Recommendation createRecommendation(Recommendation body) {
+    public Mono<Recommendation> createRecommendation(Recommendation body) {
         return service.createRecommendation(body);
     }
 
     @Override
-    public void deleteRecommendations(int productId) {
-        service.deleteRecommendations(productId);
+    public Mono<Void> deleteRecommendations(int productId) {
+        return service.deleteRecommendations(productId);
     }
 }

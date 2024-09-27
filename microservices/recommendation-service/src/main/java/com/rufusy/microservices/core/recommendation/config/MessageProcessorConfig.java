@@ -29,12 +29,12 @@ public class MessageProcessorConfig {
                 case CREATE -> {
                     Recommendation recommendation = event.getData();
                     log.info("Create recommendation with ID: {}/{}", recommendation.getProductId(), recommendation.getRecommendationId());
-                    recommendationService.createRecommendation(recommendation);
+                    recommendationService.createRecommendation(recommendation).block();
                 }
                 case DELETE -> {
                     int productId = event.getKey();
                     log.info("Delete recommendation with ProductID: {}", productId);
-                    recommendationService.deleteRecommendations(productId);
+                    recommendationService.deleteRecommendations(productId).block();
                 }
                 default -> {
                     String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";

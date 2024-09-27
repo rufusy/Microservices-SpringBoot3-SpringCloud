@@ -1,13 +1,15 @@
 package com.rufusy.microservices.core.recommendation.service;
 
 import com.rufusy.microservices.api.core.recommendation.Recommendation;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface RecommendationService {
-    Recommendation createRecommendation(Recommendation body);
+    Mono<Recommendation> createRecommendation(Recommendation body);
 
-    List<Recommendation> getRecommendations(int productId);
+    Flux<Recommendation> getRecommendations(int productId);
 
-    boolean deleteRecommendations(int productId);
+    Mono<Void> deleteRecommendations(int productId);
 }
