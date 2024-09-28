@@ -6,6 +6,7 @@ import com.rufusy.microservices.core.product.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
@@ -18,17 +19,17 @@ public class ProductController implements ProductResource {
     }
 
     @Override
-    public Product getProduct(int productId) {
+    public Mono<Product> getProduct(int productId) {
         return productService.getProduct(productId);
     }
 
     @Override
-    public Product createProduct(Product body) {
+    public Mono<Product> createProduct(Product body) {
         return productService.createProduct(body);
     }
 
     @Override
-    public void deleteProduct(int productId) {
-        productService.deleteProductById(productId);
+    public Mono<Void> deleteProduct(int productId) {
+        return productService.deleteProductById(productId);
     }
 }

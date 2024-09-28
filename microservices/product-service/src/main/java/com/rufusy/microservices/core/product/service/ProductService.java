@@ -1,11 +1,12 @@
 package com.rufusy.microservices.core.product.service;
 
 import com.rufusy.microservices.api.core.product.Product;
+import reactor.core.publisher.Mono;
 
 public interface ProductService {
-    Product getProduct(int productId);
+    Mono<Product> getProduct(int productId);
 
-    Product createProduct(Product body);
+    Mono<Product> createProduct(Product body);
 
-    void deleteProductById(int productId);
+    Mono<Void> deleteProductById(int productId);
 }
