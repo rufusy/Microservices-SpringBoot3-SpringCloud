@@ -10,8 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
+
+import static java.util.logging.Level.FINE;
 
 @Slf4j
 @Service
@@ -20,15 +25,27 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewMapper mapper;
     private final ServiceUtil serviceUtil;
 
-    public ReviewServiceImpl(ReviewRepository repository, ReviewMapper mapper, ServiceUtil serviceUtil) {
+    private final Scheduler jdbcScheduler;
+
+    public ReviewServiceImpl(ReviewRepository repository, ReviewMapper mapper, ServiceUtil serviceUtil, Scheduler jdbcScheduler) {
         this.repository = repository;
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
+        this.jdbcScheduler = jdbcScheduler;
     }
 
     @Transactional
     @Override
-    public Review createReview(Review body) {
+    public Mono<Review> createReview(Review body) {
+        if (body.getProductId() < 1) {
+            throw new InvalidInputException("Invalid productId: " + body.getProductId());
+        }
+
+        return Mono.fromCallable(() -> internalCreateReview(body))
+                .subscribeOn(jdbcScheduler);
+    }
+
+    private Review internalCreateReview(Review body){
         try {
             ReviewEntity entity = mapper.apiToEntity(body);
             ReviewEntity newEntity = repository.save(entity);
@@ -43,11 +60,22 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> getReviews(int productId) {
+    public Flux<Review> getReviews(int productId) {
+
         if (productId < 1) {
             log.debug("Invalid productId: {}", productId);
             throw new InvalidInputException("Invalid productId: " + productId);
         }
+
+        log.info("Will get reviews for product with id={}", productId);
+
+        return Mono.fromCallable(() -> internalGetReviews(productId))
+                .flatMapMany(Flux::fromIterable)
+                .log(log.getName(), FINE)
+                .subscribeOn(jdbcScheduler);
+    }
+
+    private List<Review> internalGetReviews(int productId) {
 
         List<ReviewEntity> entityList = repository.findByProductId(productId);
         List<Review> list = mapper.entityListToApiList(entityList);
@@ -59,13 +87,19 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void deleteReviews(int productId) {
+    public Mono<Void> deleteReviews(int productId) {
         if (productId < 1) {
             log.debug("Invalid productId: {}", productId);
             throw new InvalidInputException("Invalid productId: " + productId);
         }
 
+        return Mono.fromRunnable(() -> internalDeleteReviews(productId))
+                .subscribeOn(jdbcScheduler).then();
+    }
+
+    private void internalDeleteReviews(int productId){
         log.debug("deleteReviews: tries to delete reviews for the product with productId: {}", productId);
+
         repository.deleteAll(repository.findByProductId(productId));
     }
 }

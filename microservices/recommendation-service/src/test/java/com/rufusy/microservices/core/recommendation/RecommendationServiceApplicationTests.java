@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RecommendationServiceApplicationTests extends MongoTestBase {
@@ -37,7 +36,7 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
 
     @BeforeEach
     void setupDb() {
-        repository.deleteAll();
+        repository.deleteAll().block();
     }
 
     @Test
@@ -49,7 +48,7 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
         sendCreateRecommendationEvent(productId, 3);
         sendCreateRecommendationEvent(productId, 4);
 
-        assertEquals(4, repository.findByProductId(productId).size());
+        assertEquals(4L, repository.findByProductId(productId).count().block());
 
         getAndVerifyRecommendationsByProductId(productId, OK)
                 .jsonPath("$.length()").isEqualTo(4)
@@ -98,10 +97,10 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
         int recommendationId = 1;
 
         sendCreateRecommendationEvent(productId, recommendationId);
-        assertEquals(1, repository.findByProductId(productId).size());
+        assertEquals(1, repository.findByProductId(productId).count().block());
 
         sendDeleteRecommendationEvent(productId);
-        assertEquals(0, repository.findByProductId(productId).size());
+        assertEquals(0, repository.findByProductId(productId).count().block());
 
         sendDeleteRecommendationEvent(productId);
     }
@@ -120,35 +119,13 @@ class RecommendationServiceApplicationTests extends MongoTestBase {
                 .expectBody();
     }
 
-    private void postAndVerifyRecommendation(int productId, int recommendationId, HttpStatus expectedStatus) {
-        Recommendation recommendation = new Recommendation(productId, recommendationId, "Author " + recommendationId, recommendationId, "Content " + recommendationId, "SA");
-
-        client.post()
-                .uri("/recommendation")
-                .body(just(recommendation), Recommendation.class)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus)
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody();
-    }
-
-    private void deleteAndVerifyRecommendationsByProductId(int productId, HttpStatus expectedStatus) {
-        client.delete()
-                .uri("/recommendation?productId=" + productId)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus)
-                .expectBody();
-    }
-
-    private void sendCreateRecommendationEvent(int productId, int recommendationId){
+    private void sendCreateRecommendationEvent(int productId, int recommendationId) {
         Recommendation recommendation = new Recommendation(productId, recommendationId, "Author " + recommendationId, recommendationId, "Content " + recommendationId, "SA");
         Event<Integer, Recommendation> event = new Event<>(Event.Type.CREATE, productId, recommendation);
         messageProcessor.accept(event);
     }
 
-    private void sendDeleteRecommendationEvent(int productId){
+    private void sendDeleteRecommendationEvent(int productId) {
         Event<Integer, Recommendation> event = new Event<>(Event.Type.DELETE, productId, null);
         messageProcessor.accept(event);
     }

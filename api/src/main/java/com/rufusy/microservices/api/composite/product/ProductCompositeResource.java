@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @Tag(name = "ProductComposite", description = "REST API for composite product information")
 public interface ProductCompositeResource {
@@ -29,7 +30,7 @@ public interface ProductCompositeResource {
     @GetMapping(
             value = "/product-composite/{productId}",
             produces = "application/json")
-    ProductAggregate getProduct(@PathVariable int productId);
+    Mono<ProductAggregate> getProduct(@PathVariable int productId);
 
     /**
      * Sample usage
@@ -53,7 +54,7 @@ public interface ProductCompositeResource {
             value = "/product-composite",
             consumes = "application/json",
             produces = "application/json")
-    ProductAggregate createProduct(@RequestBody ProductAggregate body);
+    Mono<Void> createProduct(@RequestBody ProductAggregate body);
 
     /**
      * Sample usage: "curl -X DELETE $HOST:$PORT/product-composite/1"
@@ -70,5 +71,5 @@ public interface ProductCompositeResource {
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(value = "/product-composite/{productId}")
-    void deleteProduct(@PathVariable int productId);
+    Mono<Void> deleteProduct(@PathVariable int productId);
 }

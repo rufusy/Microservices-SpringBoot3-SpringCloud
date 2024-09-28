@@ -15,8 +15,7 @@ import java.util.function.Consumer;
 
 import static com.rufusy.microservices.api.event.Event.Type.CREATE;
 import static com.rufusy.microservices.api.event.Event.Type.DELETE;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -40,15 +39,20 @@ class ProductServiceApplicationTests extends MongoTestBase {
 
     @BeforeEach
     void setupDb() {
-        repository.deleteAll();
+        repository.deleteAll().block();
     }
 
     @Test
     void getProductById() {
         int productId = 1;
 
+        assertNull(repository.findByProductId(productId).block());
+        assertEquals(0L, repository.count().block());
+
         sendCreateProductEvent(productId);
-        assertTrue(repository.findByProductId(productId).isPresent());
+
+        assertNotNull(repository.findByProductId(productId).block());
+        assertEquals(1L, repository.count().block());
 
         getAndVerifyProduct(productId, OK)
                 .jsonPath("$.productId").isEqualTo(productId);
@@ -85,10 +89,11 @@ class ProductServiceApplicationTests extends MongoTestBase {
         int productId = 1;
 
         sendCreateProductEvent(productId);
-        assertTrue(repository.findByProductId(productId).isPresent());
+        assertNotNull(repository.findByProductId(productId).block());
 
         sendDeleteProductEvent(productId);
-        assertFalse(repository.findByProductId(productId).isPresent());
+        assertNull(repository.findByProductId(productId).block());
+
         sendDeleteProductEvent(productId);
     }
 

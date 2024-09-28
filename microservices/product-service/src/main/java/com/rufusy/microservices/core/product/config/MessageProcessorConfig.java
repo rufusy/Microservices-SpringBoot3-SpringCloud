@@ -30,12 +30,12 @@ public class MessageProcessorConfig {
                 case CREATE -> {
                     Product product = event.getData();
                     log.info("Create product with ID: {}", product.getProductId());
-                    productService.createProduct(product);
+                    productService.createProduct(product).block();
                 }
                 case DELETE -> {
                     int productId = event.getKey();
                     log.info("Delete product with ID: {}", productId);
-                    productService.deleteProductById(productId);
+                    productService.deleteProductById(productId).block();
                 }
                 default -> {
                     String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";

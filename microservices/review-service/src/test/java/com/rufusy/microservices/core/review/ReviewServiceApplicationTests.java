@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ReviewServiceApplicationTests extends MySqlTestBase {
@@ -49,7 +48,6 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
         sendCreateReviewEvent(productId, 2);
         sendCreateReviewEvent(productId, 3);
         sendCreateReviewEvent(productId, 4);
-
 
         assertEquals(4, repository.findByProductId(productId).size());
 
@@ -120,35 +118,14 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
                 .expectBody();
     }
 
-    private void postAndVerifyReview(int productId, int reviewId, HttpStatus expectedStatus) {
-        Review review = new Review(productId, reviewId, "Author " + reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
-        client.post()
-                .uri("/review")
-                .body(just(review), Review.class)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus)
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody();
-    }
-
-    private void deleteAndVerifyReviewsByProductId(int productId, HttpStatus expectedStatus) {
-        client.delete()
-                .uri("/review?productId=" + productId)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus)
-                .expectBody();
-    }
-
     private void sendCreateReviewEvent(int productId, int reviewId) {
         Review review = new Review(productId, reviewId, "Author " + reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
-        Event<Integer, Review> event = new Event(CREATE, productId, review);
+        Event<Integer, Review> event = new Event<>(CREATE, productId, review);
         messageProcessor.accept(event);
     }
 
     private void sendDeleteReviewEvent(int productId) {
-        Event<Integer, Review> event = new Event(DELETE, productId, null);
+        Event<Integer, Review> event = new Event<>(DELETE, productId, null);
         messageProcessor.accept(event);
     }
 }
