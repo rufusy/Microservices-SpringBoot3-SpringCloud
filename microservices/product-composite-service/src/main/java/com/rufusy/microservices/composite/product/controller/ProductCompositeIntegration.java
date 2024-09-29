@@ -68,15 +68,15 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
         this.publishEventScheduler = publishEventScheduler;
         this.webClient = webClient.build();
 
-        this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product";
-        this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation";
-        this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review";
+        this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort;
+        this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort;
+        this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort;
     }
 
     @Override
     public Mono<Product> getProduct(int productId) {
 
-        String url = productServiceUrl + "/" + productId;
+        String url = productServiceUrl + "/product/" + productId;
 
         log.debug("Will call getProduct API on URL: {}", url);
 
@@ -115,7 +115,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
 
     @Override
     public Flux<Recommendation> getRecommendations(int productId) {
-        String url = recommendationServiceUrl + "?productId=" + productId;
+        String url = recommendationServiceUrl + "/recommendation?productId=" + productId;
 
         log.debug("Will call getRecommendations API on URL: {}", url);
 
@@ -155,7 +155,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
 
     @Override
     public Flux<Review> getReviews(int productId) {
-        String url = reviewServiceUrl + "?productId=" + productId;
+        String url = reviewServiceUrl + "/review?productId=" + productId;
 
         log.debug("Will call getReviews API on URL: {}", url);
 
