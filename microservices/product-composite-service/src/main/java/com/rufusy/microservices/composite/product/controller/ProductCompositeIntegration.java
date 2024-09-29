@@ -15,6 +15,7 @@ import com.rufusy.microservices.util.HttpErrorInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
@@ -33,6 +34,7 @@ import java.util.logging.Level;
 
 import static com.rufusy.microservices.api.event.Event.Type.CREATE;
 import static com.rufusy.microservices.api.event.Event.Type.DELETE;
+import static java.util.logging.Level.FINE;
 
 @Slf4j
 @Component
@@ -82,7 +84,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
                 .uri(url)
                 .retrieve()
                 .bodyToMono(Product.class)
-                .log(log.getName(), Level.FINE)
+                .log(log.getName(), FINE)
                 .onErrorMap(WebClientResponseException.class, this::handleException);
     }
 
@@ -122,7 +124,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
                 .uri(url)
                 .retrieve()
                 .bodyToFlux(Recommendation.class)
-                .log(log.getName(), Level.FINE)
+                .log(log.getName(), FINE)
                 .onErrorResume(error -> Flux.empty());
     }
 
@@ -162,7 +164,7 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
                 .uri(url)
                 .retrieve()
                 .bodyToFlux(Review.class)
-                .log(log.getName(), Level.FINE)
+                .log(log.getName(), FINE)
                 .onErrorResume(error -> Flux.empty());
     }
 
@@ -189,6 +191,27 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
                 throw new EventProcessingException(ex.getMessage());
             }
         }).subscribeOn(publishEventScheduler).then();
+    }
+
+    public Mono<Health> getProductHealth() {
+        return getHealth(productServiceUrl);
+    }
+
+    public Mono<Health> getRecommendationHealth() {
+        return getHealth(recommendationServiceUrl);
+    }
+
+    public Mono<Health> getReviewHealth() {
+        return getHealth(reviewServiceUrl);
+    }
+
+    private Mono<Health> getHealth(String url) {
+        url += "/actuator/health";
+        log.debug("Will call the Health API on URL: {}", url);
+        return webClient.get().uri(url).retrieve().bodyToMono(String.class)
+                .map(s -> new Health.Builder().up().build())
+                .onErrorResume(ex -> Mono.just(new Health.Builder().down(ex).build()))
+                .log(log.getName(), FINE);
     }
 
     private void sendMessage(String bindingName, Event<?, ?> event) {
