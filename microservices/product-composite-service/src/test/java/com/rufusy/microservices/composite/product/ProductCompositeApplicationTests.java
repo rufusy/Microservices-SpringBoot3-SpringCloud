@@ -22,7 +22,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+        properties = {"eureka.client.enabled=false"})
 class ProductCompositeApplicationTests {
     private static final int PRODUCT_ID_OK = 1;
     private static final int PRODUCT_ID_NOT_FOUND = 2;

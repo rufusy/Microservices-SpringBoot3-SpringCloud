@@ -21,7 +21,9 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static reactor.core.publisher.Mono.just;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = RANDOM_PORT,
+        properties = {"eureka.client.enabled=false"})
 class ProductServiceApplicationTests extends MongoTestBase {
     @Autowired
     private WebTestClient client;

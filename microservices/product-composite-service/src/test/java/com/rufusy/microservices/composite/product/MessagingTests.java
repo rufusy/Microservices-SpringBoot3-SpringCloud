@@ -34,9 +34,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static reactor.core.publisher.Mono.just;
 
-@SpringBootTest(
-        webEnvironment = RANDOM_PORT,
-        properties = {"spring.main.allow-bean-definition-overriding=true"})
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+        properties = {
+                "spring.main.allow-bean-definition-overriding=true",
+                "eureka.client.enabled=false"})
 @Import({TestChannelBinderConfiguration.class})
 public class MessagingTests {
 

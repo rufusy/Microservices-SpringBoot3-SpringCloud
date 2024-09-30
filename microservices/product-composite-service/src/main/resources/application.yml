@@ -1,4 +1,4 @@
-spring.application.name: product-composite
+spring.application.name: composite
 server.port: 7000
 server.error.include-message: always
 
@@ -8,17 +8,12 @@ logging:
         root: info
         com.rufusy: debug
 
-# Core services
-app:
-    product-service:
-        host: localhost
-        port: 7001
-    recommendation-service:
-        host: localhost
-        port: 7002
-    review-service:
-        host: localhost
-        port: 7003
+# Core services urls
+# The hostnames are not actual DNS names. Instead, they are the virtual hostnames that are used by the microservices
+# when they register themselves to the Eureka server i.e. application names
+app.product-service.url: http://product-service
+app.recommendation-service.url: http://recommendation-service
+app.review-service.url: http://review-service
 
 # Spring doc with swagger ui and openapi
 springdoc:
@@ -126,21 +121,24 @@ spring.rabbitmq:
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 
+# Eureka
+app.eureka-server: localhost
+eureka:
+    client:
+        service-url:
+            defaultZone: http://${app.eureka-server}:8761/eureka/
+        initialInstanceInfoReplicationIntervalSeconds: 5
+        registryFetchIntervalSeconds: 5
+    instance:
+        leaseRenewalIntervalInSeconds: 5
+        leaseExpirationDurationInSeconds: 5
+
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
 
-app:
-    product-service:
-        host: product
-        port: 8080
-    recommendation-service:
-        host: recommendation
-        port: 8080
-    review-service:
-        host: review
-        port: 8080
+app.eureka-server: eureka
 
 spring.rabbitmq.host: rabbitmq
 

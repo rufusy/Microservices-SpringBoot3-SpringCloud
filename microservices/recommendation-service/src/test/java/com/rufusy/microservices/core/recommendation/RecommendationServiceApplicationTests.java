@@ -14,10 +14,12 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+        properties = {"eureka.client.enabled=false"})
 class RecommendationServiceApplicationTests extends MongoTestBase {
 
     @Autowired
