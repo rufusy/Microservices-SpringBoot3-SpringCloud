@@ -1,4 +1,4 @@
-spring.application.name: review-service
+spring.application.name: review
 server.port: 7003
 server.error.include-message: always
 
@@ -57,10 +57,24 @@ logging:
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 
+# Eureka
+app.eureka-server: localhost
+eureka:
+    client:
+        service-url:
+            defaultZone: http://${app.eureka-server}:8761/eureka/
+        initialInstanceInfoReplicationIntervalSeconds: 5
+        registryFetchIntervalSeconds: 5
+    instance:
+        leaseRenewalIntervalInSeconds: 5
+        leaseExpirationDurationInSeconds: 5
+
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
+
+app.eureka-server: eureka
 
 spring.datasource:
     url: jdbc:mysql://mysql:3306/review-db
