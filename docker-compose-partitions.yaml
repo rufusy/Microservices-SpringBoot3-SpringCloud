@@ -78,8 +78,6 @@ services:
     build: microservices/product-composite-service
     image: rufusy/product-composite-service
     mem_limit: 512m
-    ports:
-      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned
     depends_on:
@@ -133,5 +131,12 @@ services:
     build: spring-cloud/eureka-server
     image: rufusy/cmp-eureka-server
     mem_limit: 512m
+
+  gateway:
+    build: spring-cloud/gateway
+    image: rufusy/cmp-gateway
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    mem_limit: 512m
     ports:
-      - "8761:8761"
+      - "8080:8080"

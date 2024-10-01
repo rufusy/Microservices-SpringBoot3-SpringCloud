@@ -1,6 +1,8 @@
-spring.application.name: composite
+spring.application.name: product-composite
 server.port: 7000
 server.error.include-message: always
+
+server.forward-headers-strategy: framework
 
 # Logging
 logging:

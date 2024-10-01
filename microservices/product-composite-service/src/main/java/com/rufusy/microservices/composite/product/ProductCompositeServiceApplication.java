@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -44,11 +43,6 @@ public class ProductCompositeServiceApplication {
     String apiContactUrl;
     @Value("${api.common.contact.email}")
     String apiContactEmail;
-
-    @Bean
-    RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 
     /**
      * will be exposed on $HOST:$PORT/swagger-ui.html
