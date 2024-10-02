@@ -52,7 +52,6 @@ services:
   review:
     build: microservices/review-service
     image: rufusy/review-service
-    container_name: rev-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
@@ -86,7 +85,6 @@ services:
 
   mongodb:
     image: mongo:6.0.4
-    container_name: mongodb
     mem_limit: 512m
     ports:
       - "27017:27017"
@@ -99,7 +97,6 @@ services:
 
   mysql:
     image: mysql:8.0.32
-    container_name: mysql
     mem_limit: 512m
     ports:
       - "3306:3306"
@@ -116,7 +113,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.11.8-management
-    container_name: rabbitmq
     mem_limit: 512m
     ports:
       - "5672:5672"
@@ -137,6 +133,10 @@ services:
     image: rufusy/cmp-gateway
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_SSL_KEY_STORE=file:/keystore/edge-test.p12
+      - SERVER_SSL_KEY_STORE_PASSWORD=testtest
+    volumes:
+      - ./keystore:/keystore
     mem_limit: 512m
     ports:
-      - "8080:8080"
+      - "8443:8443"
