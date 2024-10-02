@@ -2,6 +2,10 @@ spring.application.name: eureka-server
 
 server.port: 8761
 
+app:
+  eureka-username: user
+  eureka-password: pwd
+
 eureka:
   instance.hostname: localhost
   client:
@@ -9,7 +13,6 @@ eureka:
     fetch-registry: false
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-
   # from: https://github.com/spring-cloud-samples/eureka/blob/master/src/main/resources/application.yml
   server:
     waitTimeInMsWhenSyncEmpty: 0
