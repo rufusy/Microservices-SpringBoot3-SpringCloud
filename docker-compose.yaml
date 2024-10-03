@@ -100,6 +100,10 @@ services:
     image: rufusy/cmp-gateway
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_SSL_KEY_STORE=file:/keystore/edge-test.p12
+      - SERVER_SSL_KEY_STORE_PASSWORD=testtest
+    volumes:
+      - ./keystore:/keystore
     mem_limit: 512m
     ports:
-      - "8080:8080"
+      - "8443:8443"
