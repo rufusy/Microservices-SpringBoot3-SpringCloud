@@ -53,7 +53,7 @@ information about a product as follows:
 This project is packaged as a library. It contains:
 - Interfaces that define the RESTful APIs.
 - Model classes (DTOs) used in API requests and responses.
-- Exceptions mapped returned by the API.
+- Exceptions returned by the API.
 - Event types that can be sent to a message broker.
 
 ### Util
