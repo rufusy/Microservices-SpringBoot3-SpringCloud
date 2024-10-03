@@ -14,7 +14,7 @@ As a result, the business logic within the services is intentionally kept minima
 ### The product service
 The product service manages product information and describes each product with the following
 attributes:
-- Product ID: This is not the primary key (PK) but rather a unique key that identifies the associated entity in storage
+- Product ID: This is not the primary key (PK) but rather a unique key that identifies a product in storage
 - Name
 - Weight
 
@@ -27,7 +27,7 @@ review:
 - Subject
 - Content
 
-Product ID and Recommendation ID together form a compound key that uniquely identifies the associated entity in storage.
+Product ID and Review ID together form a compound key that uniquely identifies a review in storage.
 
 ### The recommendation service
 The recommendation service manages product recommendations and stores the following information
@@ -38,7 +38,7 @@ about each recommendation:
 - Rate
 - Content
 
-Product ID and Recommendation ID together form a compound key that uniquely identifies the associated entity in storage.
+Product ID and Recommendation ID together form a compound key that uniquely identifies a recommendation in storage.
 
 ### The product composite service
 The product composite service aggregates information from the three core services and presents
