@@ -54,6 +54,28 @@ spring.cloud.gateway.routes:
     predicates:
       - Path=/eureka/**
 
+  - id: auth-server-discovery
+    uri: lb://auth-server
+    predicates:
+      - Path=/oauth2/.well-known/openid-configuration
+    filters:
+      - SetPath=/.well-known/openid-configuration
+
+  - id: auth-server
+    uri: lb://auth-server
+    predicates:
+      - Path=/oauth2/**
+
+  - id: oauth2-login
+    uri: lb://auth-server
+    predicates:
+      - Path=/login/**
+
+  - id: oauth2-error
+    uri: lb://auth-server
+    predicates:
+      - Path=/error/**
+
 # Logging
 logging:
     level:
