@@ -123,12 +123,13 @@ spring.rabbitmq:
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 
-# Eureka
 app:
     eureka-server: localhost
     eureka-username: user
     eureka-password: pwd
+    auth-server: localhost
 
+# Eureka
 eureka:
     client:
         service-url.defaultZone: http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/
@@ -138,12 +139,17 @@ eureka:
         leaseRenewalIntervalInSeconds: 5
         leaseExpirationDurationInSeconds: 5
 
+# OAuth 2.0
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
+
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
 
-app.eureka-server: eureka
+app:
+    eureka-server: eureka
+    auth-server: auth-server
 
 spring.rabbitmq.host: rabbitmq
 

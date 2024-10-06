@@ -34,10 +34,15 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static reactor.core.publisher.Mono.just;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT,
+@SpringBootTest(
+        webEnvironment = RANDOM_PORT,
+        classes = {TestSecurityConfig.class},
         properties = {
-                "spring.main.allow-bean-definition-overriding=true",
-                "eureka.client.enabled=false"})
+                "eureka.client.enabled=false",
+                "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
+                "spring.main.allow-bean-definition-overriding=true"
+        }
+)
 @Import({TestChannelBinderConfiguration.class})
 public class MessagingTests {
 

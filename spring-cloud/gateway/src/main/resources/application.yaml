@@ -13,6 +13,7 @@ app:
   eureka-server: localhost
   eureka-username: user
   eureka-password: pwd
+  auth-server: localhost
 
 eureka:
     client:
@@ -82,6 +83,10 @@ logging:
         root: info
         org.springframework.cloud.gateway: trace
         org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
+        org.springframework.web.server.adapter.HttpWebHandlerAdapter: trace
+
+# OAuth 2.0
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
 
 # Health
 management.endpoint.health.show-details: "ALWAYS"
@@ -93,4 +98,6 @@ spring.config.activate.on-profile: docker
 
 server.port: 8443
 
-app.eureka-server: eureka
+app:
+  eureka-server: eureka
+  auth-server: auth-server
