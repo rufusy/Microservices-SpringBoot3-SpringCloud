@@ -37,6 +37,11 @@ public class DefaultSecurityConfig {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/actuator/**").permitAll()
@@ -46,25 +51,13 @@ public class DefaultSecurityConfig {
         return http.build();
     }
 
-//    @Bean
-//    public UserDetailsService users() {
-//
-//        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-//
-//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//
-//        UserDetails user = new User(username, passwordEncoder.encode(password), authorities);
-//
-//        return new InMemoryUserDetailsManager(user);
-//    }
-
     @Bean
-    UserDetailsService users() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username(username)
-                .password(password)
-                .roles("USER")
-                .build();
+    public UserDetailsService users() {
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+        UserDetails user = new User(username, passwordEncoder().encode(password), authorities);
+
         return new InMemoryUserDetailsManager(user);
     }
 }

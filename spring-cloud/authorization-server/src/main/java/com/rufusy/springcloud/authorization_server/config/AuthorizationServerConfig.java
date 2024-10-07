@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -50,6 +51,12 @@ import java.util.function.Consumer;
 public class AuthorizationServerConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSecurityConfig.class);
+
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthorizationServerConfig(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -97,7 +104,7 @@ public class AuthorizationServerConfig {
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient writerClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("writer")
-                .clientSecret("{noop}secret-writer")
+                .clientSecret(passwordEncoder.encode("secret-writer"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
@@ -113,7 +120,7 @@ public class AuthorizationServerConfig {
 
         RegisteredClient readerClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("reader")
-                .clientSecret("{noop}secret-reader")
+                .clientSecret(passwordEncoder.encode("secret-reader"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)

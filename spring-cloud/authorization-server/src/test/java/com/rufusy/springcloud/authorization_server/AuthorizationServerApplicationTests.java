@@ -27,8 +27,9 @@ class OAuth2AuthorizationServerApplicationTests {
         String base64Credentials = Base64.getEncoder().encodeToString("writer:secret-writer".getBytes());
 
         this.mvc.perform(post("/oauth2/token")
+                        .header("Authorization", "Basic " + base64Credentials)
                         .param("grant_type", "client_credentials")
-                        .header("Authorization", "Basic " + base64Credentials))
+                )
                 .andExpect(status().isOk());
     }
 
