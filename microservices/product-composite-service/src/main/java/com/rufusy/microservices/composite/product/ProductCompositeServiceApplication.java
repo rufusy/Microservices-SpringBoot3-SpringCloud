@@ -5,6 +5,10 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.OAuthFlow;
+import io.swagger.v3.oas.models.security.OAuthFlows;
+import io.swagger.v3.oas.models.security.Scopes;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,6 +70,7 @@ public class ProductCompositeServiceApplication {
                 .externalDocs(new ExternalDocumentation()
                         .description(apiExternalDocDesc)
                         .url(apiExternalDocUrl));
+                //.schemaRequirement("security_auth", security_auth());
     }
 
     private final Integer threadPoolSize;
@@ -95,4 +100,28 @@ public class ProductCompositeServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(ProductCompositeServiceApplication.class, args);
     }
+
+//    // pass security mechanism programmatically when using v 2.6
+//    @Value("${springdoc.oAuthFlow.authorizationUrl}")
+//    private String authorizationUrl;
+//
+//    @Value("${springdoc.oAuthFlow.tokenUrl}")
+//    private String tokenUrl;
+//
+//    private SecurityScheme security_auth() {
+//        Scopes scopes = new Scopes();
+//        scopes.addString("product:read", "Read scope");
+//        scopes.addString("product:write", "Write scope");
+//
+//        return new SecurityScheme()
+//                .type(SecurityScheme.Type.OAUTH2)
+//                .flows(new OAuthFlows()
+//                        .authorizationCode(
+//                                new OAuthFlow()
+//                                        .authorizationUrl(authorizationUrl)
+//                                        .tokenUrl(tokenUrl)
+//                                        .scopes(scopes)
+//                        )
+//                );
+//    }
 }

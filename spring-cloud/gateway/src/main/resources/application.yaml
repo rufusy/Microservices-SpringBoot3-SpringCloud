@@ -92,7 +92,10 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 management.endpoint.gateway.enabled: true
-
+management:
+  endpoint:
+    env:
+      show-values: always
 ---
 spring.config.activate.on-profile: docker
 

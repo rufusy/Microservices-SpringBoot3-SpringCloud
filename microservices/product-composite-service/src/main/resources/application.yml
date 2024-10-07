@@ -10,21 +10,22 @@ logging:
         root: info
         com.rufusy: debug
 
-# Core services urls
-# The hostnames are not actual DNS names. Instead, they are the virtual hostnames that are used by the microservices
-# when they register themselves to the Eureka server i.e. application names
-app.product-service.url: http://product-service
-app.recommendation-service.url: http://recommendation-service
-app.review-service.url: http://review-service
-
 # Spring doc with swagger ui and openapi
 springdoc:
-    swagger-ui:
-        path: /openapi/swagger-ui.html
-    api-docs:
-        path: /openapi/v3/api-docs
+    swagger-ui.path: /openapi/swagger-ui.html
+    api-docs.path: /openapi/v3/api-docs
     packages-to-scan: com.rufusy.microservices.composite.product
     paths-to-match: /**
+    cache.disabled: true
+    swagger-ui:
+        oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
+        oauth:
+            clientId: writer
+            clientSecret: secret-writer
+            useBasicAuthenticationWithAccessCodeGrant: true
+    oAuthFlow:
+        authorizationUrl: https://localhost:8443/oauth2/authorize
+        tokenUrl: https://localhost:8443/oauth2/token
 
 api:
     common:
@@ -122,6 +123,10 @@ spring.rabbitmq:
 # Health
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
+management:
+    endpoint:
+        env:
+            show-values: always
 
 app:
     eureka-server: localhost
