@@ -46,15 +46,25 @@ public class DefaultSecurityConfig {
         return http.build();
     }
 
+//    @Bean
+//    public UserDetailsService users() {
+//
+//        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+//
+//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//
+//        UserDetails user = new User(username, passwordEncoder.encode(password), authorities);
+//
+//        return new InMemoryUserDetailsManager(user);
+//    }
+
     @Bean
-    public UserDetailsService users() {
-
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-        UserDetails user = new User(username, passwordEncoder.encode(password), authorities);
-
+    UserDetailsService users() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username(username)
+                .password(password)
+                .roles("USER")
+                .build();
         return new InMemoryUserDetailsManager(user);
     }
 }

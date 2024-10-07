@@ -1,5 +1,5 @@
 spring.application.name: gateway
-
+server.forward-headers-strategy: framework
 server:
   port: 8443
   ssl:
