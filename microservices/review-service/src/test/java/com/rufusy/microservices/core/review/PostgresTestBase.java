@@ -3,11 +3,10 @@ package com.rufusy.microservices.core.review;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 
-public abstract class MySqlTestBase {
-    // Extend startup timeout since container starts very slow
-    private final static JdbcDatabaseContainer<?> database = new MySQLContainer("mysql:8.0.32")
+public abstract class PostgresTestBase {
+    private final static JdbcDatabaseContainer<?> database =  new PostgreSQLContainer<>("postgres:14")
             .withConnectTimeoutSeconds(300);
 
     static {

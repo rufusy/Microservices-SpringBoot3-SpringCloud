@@ -27,7 +27,7 @@ jar {
 }
 
 ext {
-	springDocOpenApiVersion = "2.6.0"
+	springDocOpenApiVersion = "2.0.2" //version 2.6.0 doesn't set client id/secret in the header with swagger. @todo to update later
 	springCloudVersion = "2023.0.3"
 }
 
@@ -44,6 +44,9 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	compileOnly 'org.projectlombok:lombok:1.18.28'
 	annotationProcessor 'org.projectlombok:lombok:1.18.28'

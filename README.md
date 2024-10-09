@@ -73,6 +73,36 @@ The following Spring Cloud components have been used to implement various design
 | Event driven communication | Spring cloud stream                            |
 
 
+## Security
+
+The following measures have been implemented to secure the services:
+
+- **HTTPS Encryption**:
+  - All external requests and responses to the external API are encrypted using HTTPS with a self-signed certificate.
+  - The certificate is specified at runtime when using Docker and added to the classpath outside of Docker.
+  - Note that HTTPS is applied only to the edge server; plain HTTP is used internally.
+
+- **Basic Authentication**:
+  - The discovery server (Netflix Eureka) requires basic authentication with the credentials: `user/pwd`.
+
+- **OAuth 2.0 and OIDC**:
+  - Users and client applications accessing the APIs are authenticated and authorized using OAuth 2.0 and OIDC.
+  - The edge server and product composite service act as resource servers.
+  - For local development and testing, Spring Authorization Server is used. A resource owner will have credentials: `user/pwd`.
+
+- **Client Credentials**:
+  - **Client 1 (Writer)**:
+    - Credentials: `writer/secret-writer`.
+    - Scopes:
+      - `product:write`
+      - `product:read`
+  - **Client 2 (Reader)**:
+    - Credentials: `reader/secret-reader`.
+    - Scope: `product:read`.
+
+- **Swagger UI Configuration**:
+  - The Swagger UI component is configured to identify as the writer client and can be authorized with the writer's scopes to interact with the API.
+
 ## Testing
 The project can be configured to work with either RabbitMQ or Kafka:
 - To use RabbitMQ without partitions, refer to the docker-compose.yaml file.

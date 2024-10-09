@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class PersistenceTests extends MySqlTestBase {
+public class PersistenceTests extends PostgresTestBase {
     @Autowired
     private ReviewRepository repository;
 

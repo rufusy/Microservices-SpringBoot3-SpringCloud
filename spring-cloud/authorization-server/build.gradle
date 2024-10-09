@@ -17,28 +17,25 @@ repositories {
 	mavenCentral()
 }
 
-ext {
-	set('springCloudVersion', "2023.0.3")
-}
-
 jar {
-	/**
-	 * Disable the creation of the new plain JAR file.
-	 * We want to make it possible to refer to the ordinary JAR file with a wildcard when running the application e.g.
-	 * java -jar microservices/product-service/build/libs/*.jar
-	 */
 	enabled = false
 }
 
+ext {
+	set('springCloudVersion', "2023.0.3")
+	hamcrestVersion = "2.2"
+}
+
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

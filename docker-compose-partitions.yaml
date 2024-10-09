@@ -95,21 +95,21 @@ services:
       timeout: 2s
       retries: 60
 
-  mysql:
-    image: mysql:8.0.32
-    mem_limit: 512m
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpwd
-      - MYSQL_DATABASE=review-db
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=pwd
-    healthcheck:
-      test: "/usr/bin/mysql --user=user --password=pwd --execute \"SHOW DATABASES;\""
-      interval: 5s
-      timeout: 2s
-      retries: 60
+#  mysql:
+#    image: mysql:8.0.32
+#    mem_limit: 512m
+#    ports:
+#      - "3306:3306"
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=rootpwd
+#      - MYSQL_DATABASE=review-db
+#      - MYSQL_USER=user
+#      - MYSQL_PASSWORD=pwd
+#    healthcheck:
+#      test: "/usr/bin/mysql --user=user --password=pwd --execute \"SHOW DATABASES;\""
+#      interval: 5s
+#      timeout: 2s
+#      retries: 60
 
   rabbitmq:
     image: rabbitmq:3.11.8-management
@@ -136,7 +136,35 @@ services:
       - SERVER_SSL_KEY_STORE=file:/keystore/edge-test.p12
       - SERVER_SSL_KEY_STORE_PASSWORD=testtest
     volumes:
-      - ./keystore:/keystore
+      - $PWD/keystore:/keystore
     mem_limit: 512m
     ports:
       - "8443:8443"
+
+  auth-server:
+    build: spring-cloud/authorization-server
+    image: rufusy/cmp-auth-server
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:9999/actuator/health"]
+      interval: 5s
+      timeout: 2s
+      retries: 60
+
+  postgres:
+    image: postgres:14  # You can use any version you prefer
+    container_name: postgres
+    mem_limit: 512m
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_DB=review-db
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "user" ]
+      interval: 5s
+      timeout: 2s
+      retries: 60

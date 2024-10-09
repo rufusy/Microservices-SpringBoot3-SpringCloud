@@ -1,5 +1,5 @@
 spring.application.name: gateway
-
+server.forward-headers-strategy: framework
 server:
   port: 8443
   ssl:
@@ -13,6 +13,7 @@ app:
   eureka-server: localhost
   eureka-username: user
   eureka-password: pwd
+  auth-server: localhost
 
 eureka:
     client:
@@ -54,21 +55,52 @@ spring.cloud.gateway.routes:
     predicates:
       - Path=/eureka/**
 
+  - id: auth-server-discovery
+    uri: lb://auth-server
+    predicates:
+      - Path=/oauth2/.well-known/openid-configuration
+    filters:
+      - SetPath=/.well-known/openid-configuration
+
+  - id: auth-server
+    uri: lb://auth-server
+    predicates:
+      - Path=/oauth2/**
+
+  - id: oauth2-login
+    uri: lb://auth-server
+    predicates:
+      - Path=/login/**
+
+  - id: oauth2-error
+    uri: lb://auth-server
+    predicates:
+      - Path=/error/**
+
 # Logging
 logging:
     level:
         root: info
         org.springframework.cloud.gateway: trace
         org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
+        org.springframework.web.server.adapter.HttpWebHandlerAdapter: trace
+
+# OAuth 2.0
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
 
 # Health
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 management.endpoint.gateway.enabled: true
-
+management:
+  endpoint:
+    env:
+      show-values: always
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8443
 
-app.eureka-server: eureka
+app:
+  eureka-server: eureka
+  auth-server: auth-server

@@ -19,7 +19,7 @@ repositories {
 ext {
 	springBootVersion = '3.3.3'
 	lombokVerion = "1.18.28"
-	springDocOpenApiVersion = "2.6.0"
+	springDocOpenApiVersion = "2.0.2" //version 2.6.0 doesn't set client id/secret in the header with swagger. @todo to update later
 }
 
 dependencies {

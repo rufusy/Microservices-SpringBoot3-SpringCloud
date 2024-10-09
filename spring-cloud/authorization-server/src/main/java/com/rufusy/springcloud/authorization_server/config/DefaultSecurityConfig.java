@@ -1,4 +1,4 @@
-package com.rufusy.springcloud.eureka_server.spring_cloud.config;
+package com.rufusy.springcloud.authorization_server.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -21,15 +22,16 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class DefaultSecurityConfig {
 
     private final String username;
+
     private final String password;
 
     @Autowired
-    public SecurityConfig(
-            @Value("${app.eureka-username}") String username,
-            @Value("${app.eureka-password}") String password) {
+    public DefaultSecurityConfig(
+            @Value("${app.auth-server-username}") String username,
+            @Value("${app.auth-server-password}") String password) {
         this.username = username;
         this.password = password;
     }
@@ -40,21 +42,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsManager() {
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers("/actuator/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService users() {
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
         UserDetails user = new User(username, passwordEncoder().encode(password), authorities);
 
         return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        http.csrf((csrf) -> csrf.disable())
-                .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests.anyRequest().authenticated())
-                .httpBasic(withDefaults());
-
-        return http.build();
     }
 }
