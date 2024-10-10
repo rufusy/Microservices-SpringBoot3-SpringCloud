@@ -76,9 +76,77 @@ function assertEqual() {
     fi
 }
 
+function waitForMessageProcessing() {
+  echo "Wait for message to be processed... "
+
+  # Give background processing time to complete
+  sleep 1
+
+  n=0
+  until testCompositeCreated
+  do
+    n=$(( n + 1 ))
+    if (( n == 50 ))
+    then
+      echo " Give up"
+      exit 1
+    else
+      sleep 6
+      echo -n ", retry #$n"
+    fi
+  done
+  echo "All messages are now processed"
+}
+
+function setupTestData() {
+  body="{\"productId\":$PROD_ID_REVS_RECS"
+  body+=',"name":"product name C","weight":300,
+    "recommendations":[
+      {"recommendationId":1,"author":"author 1","rate":1,"content":"content 1"},
+      {"recommendationId":2,"author":"author 2","rate":2,"content":"content 2"},
+      {"recommendationId":3,"author":"author 3","rate":3,"content":"content 3"}
+    ],
+    "reviews":[
+      {"reviewId":1,"author":"author 1","subject":"subject 1","content":"content 1"},
+      {"reviewId":2,"author":"author 2","subject":"subject 2","content":"content 2"},
+      {"reviewId":3,"author":"author 3","subject":"subject 3","content":"content 3"}
+    ]
+  }'
+  recreateComposite "$PROD_ID_REVS_RECS" "$body"
+
+  body="{\"productId\":$PROD_ID_NO_RECS}"
+  body+=',"name":"product name A", "weight":100, "reviews":[
+    {"reviewId":1,"author":"author 1","subject":"subject 1", "content":"content 1"},
+    {"reviewId":2,"author":"author 2","subject":"subject 2", "content":"content 2"},
+    {"reviewId":3,"author":"author 3","subject":"subject 3", "content":"content 3"}
+  ]}'
+  recreateComposite "$PROD_ID_NO_RECS" "$body"
+
+  body="{\"productId\":$PROD_ID_NO_REVS"
+  body+=',"name":"product name B","weight":200, "recommendations":[
+    {"recommendationId":1,"author":"author 1","rate":1,"content":"content 1"},
+    {"recommendationId":2,"author":"author 2","rate":2,"content":"content 2"},
+    {"recommendationId":3,"author":"author 3","rate":3,"content":"content 3"}
+  ]}'
+  recreateComposite "$PROD_ID_NO_REVS" "$body"
+}
+
+function recreateComposite() {
+  local productId="$1"
+  local composite="$2"
+
+  assertCurl 202 "curl -X DELETE -H \"$AUTH_HEADER\" -k -s https://$HOST:$PORT/product-composite/$productId"
+
+  local response
+  response=$(curl -X POST -k -s https://"$HOST":"$PORT"/product-composite \
+    -H "Content-Type: application/json" -H "$AUTH_HEADER" \
+    -d "$composite" -w "%{http_code}")
+  assertEqual 202 "$response"
+}
+
 set -e
 
-echo "Start Tests:" `date`
+echo "Start Tests: $(date)"
 
 echo "HOST={$HOST}"
 echo "PORT={$PORT}"
@@ -96,24 +164,20 @@ fi
 echo "Checking service health at: https://$HOST:$PORT/actuator/health..."
 waitForService "https://$HOST:$PORT/actuator/health"
 
-# Verify access to the Eureka and that all four microservices are registered in Eureka
-# The following services should be registered: gateway, auth server, review, product, recommendation, product composite
+# Verify access to the Eureka and that all 6 microservices are registered; gateway, auth server, review, product, recommendation, product composite
 echo "Verifying Eureka access and registration of all 6 services..."
 assertCurl 200 "curl -H \"accept:application/json\" -k https://user:pwd@$HOST:$PORT/eureka/api/apps -s"
 serviceCount=$(echo "$RESPONSE" | jq ".applications.application | length")
 assertEqual 6 "$serviceCount"
 
-# Acquire an access token before calling any of the protected endpoints
 echo "Fetching access token..."
-ACCESS_TOKEN=$(
-  curl -k "https://writer:secret-writer@$HOST:$PORT/oauth2/token" \
-  -d "grant_type=client_credentials" \
-  -d "scope=product:read product:write" \
-  -s | jq .access_token -r)
+ACCESS_TOKEN=$(curl -k -s "https://writer:secret-writer@$HOST:$PORT/oauth2/token" \
+  -d "grant_type=client_credentials" -d "scope=product:read product:write" | jq .access_token -r)
 echo "Access token: $ACCESS_TOKEN"
+AUTH_HEADER="Authorization: Bearer $ACCESS_TOKEN"
 
-AUTH="-H \"Authorization: Bearer $ACCESS_TOKEN\""
-
+echo "Setting up test data..."
+setupTestData
 
 if [[ $@ == *"stop"* ]]
 then
@@ -122,4 +186,4 @@ then
   docker compose down
 fi
 
-echo "End, all tests OK:" `date`
+echo "End, all tests OK: $(date)"
