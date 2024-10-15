@@ -9,14 +9,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Base64;
 
 import static org.hamcrest.core.Is.is;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {"eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureMockMvc
-class OAuth2AuthorizationServerApplicationTests {
+class AuthorizationServerApplicationTests {
 
     @Autowired
     MockMvc mvc;

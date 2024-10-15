@@ -1,0 +1,11 @@
+server.error.include-message: always
+
+spring.cloud.config.enabled: false
+
+eureka.client.enabled: false
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri: .
+
+
+
+

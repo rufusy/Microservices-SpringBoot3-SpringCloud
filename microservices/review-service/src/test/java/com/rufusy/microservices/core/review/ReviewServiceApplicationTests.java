@@ -20,9 +20,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT,
-        properties = {"eureka.client.enabled=false"})
-class ReviewServiceApplicationTests extends MySqlTestBase {
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+class ReviewServiceApplicationTests extends PostgresTestBase {
     @Autowired
     private WebTestClient client;
 
