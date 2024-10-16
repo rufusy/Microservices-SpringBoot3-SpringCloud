@@ -2,4 +2,4 @@ server.port: 9999
 
 app:
   auth-server-username: user
-  auth-server-password: pwd
+  auth-server-password: '{cipher}fdeb1f6c641ae602a911baa535f0ecb448142d0037a016fa70bf94978f6327ac'

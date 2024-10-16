@@ -1,102 +1,7 @@
 services:
-    product:
-        build: microservices/product-service
-        image: rufusy/product-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            kafka:
-                condition: service_started
-
-    product-p1:
-        build: microservices/product-service
-        image: rufusy/product-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            kafka:
-                condition: service_started
-
-    recommendation:
-        build: microservices/recommendation-service
-        image: rufusy/recommendation-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            kafka:
-                condition: service_started
-
-    recommendation-p1:
-        build: microservices/recommendation-service
-        image: rufusy/recommendation-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            kafka:
-                condition: service_started
-
-    review:
-        build: microservices/review-service
-        image: rufusy/review-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mysql:
-                condition: service_healthy
-            kafka:
-                condition: service_started
-
-    review-p1:
-        build: microservices/review-service
-        image: rufusy/review-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mysql:
-                condition: service_healthy
-            kafka:
-                condition: service_started
-
-    product-composite:
-        build: microservices/product-composite-service
-        image: rufusy/product-composite-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,kafka
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            kafka:
-                condition: service_started
-
     mongodb:
         image: mongo:6.0.4
+        container_name: mongodb
         mem_limit: 512m
         ports:
             - "27017:27017"
@@ -146,6 +51,116 @@ services:
         environment:
             - ZOOKEEPER_CLIENT_PORT=2181
 
+    product:
+        build: microservices/product-service
+        image: rufusy/product-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
+    product-p1:
+        build: microservices/product-service
+        image: rufusy/product-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
+    recommendation:
+        build: microservices/recommendation-service
+        image: rufusy/recommendation-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
+    recommendation-p1:
+        build: microservices/recommendation-service
+        image: rufusy/recommendation-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
+    review:
+        build: microservices/review-service
+        image: rufusy/review-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mysql:
+                condition: service_healthy
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
+    review-p1:
+        build: microservices/review-service
+        image: rufusy/review-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mysql:
+                condition: service_healthy
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
+    product-composite:
+        build: microservices/product-composite-service
+        image: rufusy/product-composite-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,kafka
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            kafka:
+                condition: service_started
+            config-server:
+                condition: service_healthy
+
     eureka:
         build: spring-cloud/eureka-server
         image: rufusy/cmp-eureka-server
@@ -154,6 +169,9 @@ services:
             - SPRING_PROFILES_ACTIVE=docker
             - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
             - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     gateway:
         build: spring-cloud/gateway
@@ -169,6 +187,9 @@ services:
         mem_limit: 512m
         ports:
             - "8443:8443"
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     auth-server:
         build: spring-cloud/authorization-server
@@ -183,6 +204,9 @@ services:
             interval: 5s
             timeout: 2s
             retries: 60
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     config-server:
         build: spring-cloud/config-server
@@ -193,5 +217,10 @@ services:
             - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
             - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
             - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_PWD}
+        healthcheck:
+            test: [ "CMD", "curl", "-fs", "http://localhost:8888/actuator/health" ]
+            interval: 5s
+            timeout: 2s
+            retries: 60
         volumes:
             - $PWD/config-repo:/config-repo

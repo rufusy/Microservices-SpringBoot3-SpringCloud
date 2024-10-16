@@ -13,7 +13,7 @@ logging.level:
 app:
     eureka-server: localhost
     eureka-username: user
-    eureka-password: pwd
+    eureka-password: '{cipher}fdeb1f6c641ae602a911baa535f0ecb448142d0037a016fa70bf94978f6327ac'
     auth-server: localhost
 
 # Eureka
@@ -33,7 +33,7 @@ spring.rabbitmq:
     host: 127.0.0.1
     port: 5672
     username: guest
-    password: guest
+    password: '{cipher}5e7aa9ca70bcc1aa9087fa395c61526ca7f2d321a10346f4eee983b244e426f2'
 
 spring.cloud.stream.kafka.binder:
     brokers: 127.0.0.1
