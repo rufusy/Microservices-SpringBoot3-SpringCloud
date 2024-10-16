@@ -1,58 +1,4 @@
 services:
-    product:
-        build: microservices/product-service
-        image: rufusy/product-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-
-    recommendation:
-        build: microservices/recommendation-service
-        image: rufusy/recommendation-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-
-    review:
-        build: microservices/review-service
-        image: rufusy/review-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            postgres:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-
-    product-composite:
-        build: microservices/product-composite-service
-        image: rufusy/product-composite-service
-        mem_limit: 512m
-        environment:
-            - SPRING_PROFILES_ACTIVE=docker
-            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-        depends_on:
-            rabbitmq:
-                condition: service_healthy
-
     mongodb:
         image: mongo:6.0.4
         container_name: mongodb
@@ -90,10 +36,72 @@ services:
             - "5672:5672"
             - "15672:15672"
         healthcheck:
-            test: ["CMD", "rabbitmqctl", "status"]
+            test: [ "CMD", "rabbitmqctl", "status" ]
             interval: 5s
             timeout: 2s
             retries: 60
+
+    product:
+        build: microservices/product-service
+        image: rufusy/product-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            config-server:
+                condition: service_healthy
+
+    recommendation:
+        build: microservices/recommendation-service
+        image: rufusy/recommendation-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            config-server:
+                condition: service_healthy
+
+    review:
+        build: microservices/review-service
+        image: rufusy/review-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            postgres:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            config-server:
+                condition: service_healthy
+
+    product-composite:
+        build: microservices/product-composite-service
+        image: rufusy/product-composite-service
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=docker
+            - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+            - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            config-server:
+                condition: service_healthy
 
     eureka:
         build: spring-cloud/eureka-server
@@ -103,6 +111,9 @@ services:
             - SPRING_PROFILES_ACTIVE=docker
             - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
             - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     gateway:
         build: spring-cloud/gateway
@@ -118,6 +129,9 @@ services:
         mem_limit: 512m
         ports:
             - "8443:8443"
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     auth-server:
         build: spring-cloud/authorization-server
@@ -132,16 +146,27 @@ services:
             interval: 5s
             timeout: 2s
             retries: 60
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     config-server:
-        image: spring-cloud/config-server
+        build: spring-cloud/config-server
+        image: rufusy/cmp-config-server
         mem_limit: 512m
         environment:
             - SPRING_PROFILES_ACTIVE=docker,native
             - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
             - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
             - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_PWD}
+        healthcheck:
+            test: [ "CMD", "curl", "-fs", "http://localhost:8888/actuator/health" ]
+            interval: 5s
+            timeout: 2s
+            retries: 60
         volumes:
             - $PWD/config-repo:/config-repo
+        ports:
+            - "8888:8888"
 
 

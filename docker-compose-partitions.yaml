@@ -174,7 +174,8 @@ services:
             retries: 60
 
     config-server:
-        image: spring-cloud/config-server
+        build: spring-cloud/config-server
+        image: rufusy/cmp-config-server
         mem_limit: 512m
         environment:
             - SPRING_PROFILES_ACTIVE=docker,native

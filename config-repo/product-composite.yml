@@ -1,14 +1,4 @@
-spring.application.name: product-composite
 server.port: 7000
-server.error.include-message: always
-
-server.forward-headers-strategy: framework
-
-# Logging
-logging:
-    level:
-        root: info
-        com.rufusy: debug
 
 # Spring doc with swagger ui and openapi
 springdoc:
@@ -94,7 +84,6 @@ api:
 
 # Spring cloud stream
 spring.cloud.stream:
-    defaultBinder: rabbit
     default.contentType: application/json
     bindings:
         products-out-0:
@@ -110,55 +99,18 @@ spring.cloud.stream:
             producer:
                 required-groups: auditGroup
 
-spring.cloud.stream.kafka.binder:
-    brokers: 127.0.0.1
-    defaultBrokerPort: 9092
-
-spring.rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: guest
-    password: guest
-
-# Health
-management.endpoint.health.show-details: "ALWAYS"
-management.endpoints.web.exposure.include: "*"
-management:
-    endpoint:
-        env:
-            show-values: always
-
-app:
-    eureka-server: localhost
-    eureka-username: user
-    eureka-password: pwd
-    auth-server: localhost
-
-# Eureka
-eureka:
-    client:
-        service-url.defaultZone: http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/
-        initialInstanceInfoReplicationIntervalSeconds: 5
-        registryFetchIntervalSeconds: 5
-    instance:
-        leaseRenewalIntervalInSeconds: 5
-        leaseExpirationDurationInSeconds: 5
-
 # OAuth 2.0
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
+
+logging:
+    level:
+        com.netflix.discovery: DEBUG
+        com.netflix.eureka: DEBUG
 
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
-
-app:
-    eureka-server: eureka
-    auth-server: auth-server
-
-spring.rabbitmq.host: rabbitmq
-
-spring.cloud.stream.kafka.binder.brokers: kafka
 
 ---
 spring.config.activate.on-profile: streaming_partitioned
@@ -174,11 +126,3 @@ spring.cloud.stream.bindings.recommendations-out-0.producer:
 spring.cloud.stream.bindings.reviews-out-0.producer:
     partition-key-expression: headers['partitionKey']
     partition-count: 2
-
----
-spring.config.activate.on-profile: kafka
-
-management.health.rabbit.enabled: false
-spring.cloud.stream.defaultBinder: kafka
-spring.kafka.bootstrap-servers: kafka:9092
-spring.cloud.stream.kafka.binder.replication-factor: 1
