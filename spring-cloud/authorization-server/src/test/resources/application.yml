@@ -1,0 +1,11 @@
+server.error.include-message: always
+
+spring.cloud.config.enabled: false
+
+eureka.client.enabled: false
+
+app:
+    auth-server-username: user
+    auth-server-password: pwd
+
+

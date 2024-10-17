@@ -1,0 +1,63 @@
+server.error.include-message: always
+server.forward-headers-strategy: framework
+
+# Health
+management.endpoint.health.show-details: "ALWAYS"
+management.endpoints.web.exposure.include: "*"
+
+# Logging
+logging.level:
+    root: info
+    com.rufusy: debug
+
+app:
+    eureka-server: localhost
+    eureka-username: user
+    eureka-password: '{cipher}fdeb1f6c641ae602a911baa535f0ecb448142d0037a016fa70bf94978f6327ac'
+    auth-server: localhost
+
+# Eureka
+eureka:
+    client:
+        service-url.defaultZone: http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/
+        initialInstanceInfoReplicationIntervalSeconds: 30
+        registryFetchIntervalSeconds: 30
+        eurekaServerConnectTimeoutSeconds: 30
+        eurekaServerReadTimeoutSeconds: 30
+        eurekaServerTotalConnections: 100
+        eurekaServerTotalConnectionsPerHost: 50
+    instance:
+        leaseRenewalIntervalInSeconds: 30
+        leaseExpirationDurationInSeconds: 90
+
+# Spring cloud stream
+spring.cloud.stream.defaultBinder: rabbit
+
+spring.rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: '{cipher}5e7aa9ca70bcc1aa9087fa395c61526ca7f2d321a10346f4eee983b244e426f2'
+
+spring.cloud.stream.kafka.binder:
+    brokers: 127.0.0.1
+    defaultBrokerPort: 9092
+
+---
+spring.config.activate.on-profile: docker
+
+spring.rabbitmq.host: rabbitmq
+
+spring.cloud.stream.kafka.binder.brokers: kafka
+
+app:
+    eureka-server: eureka
+    auth-server: auth-server
+
+---
+spring.config.activate.on-profile: kafka
+
+management.health.rabbit.enabled: false
+spring.cloud.stream.defaultBinder: kafka
+spring.kafka.bootstrap-servers: kafka:9092
+spring.cloud.stream.kafka.binder.replication-factor: 1

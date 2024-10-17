@@ -1,0 +1,19 @@
+server.error.include-message: always
+
+spring.cloud.config.enabled: false
+
+app:
+    eureka-username: user
+    eureka-password: pwd
+
+eureka:
+    instance.hostname: localhost
+    client:
+        register-with-eureka: false
+        fetch-registry: false
+        service-url:
+            defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    server:
+        waitTimeInMsWhenSyncEmpty: 0
+        response-cache-update-interval-ms: 5000
+

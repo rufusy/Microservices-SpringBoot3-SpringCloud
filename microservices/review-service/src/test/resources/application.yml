@@ -1,0 +1,16 @@
+server.error.include-message: always
+
+spring.jpa.hibernate.ddl-auto: update
+
+spring.cloud.stream.defaultBinder: rabbit
+
+eureka.client.enabled: false
+
+spring.cloud.config.enabled: false
+
+logging.level:
+    root: info
+    com.rufusy: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+

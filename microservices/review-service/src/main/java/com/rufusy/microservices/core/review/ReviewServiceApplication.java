@@ -33,7 +33,7 @@ public class ReviewServiceApplication {
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(ReviewServiceApplication.class, args);
 
-        String mysqlUri = ctx.getEnvironment().getProperty("spring.datasource.url");
-        log.info("Connected to MySQL: {}", mysqlUri);
+        String postgresUrl = ctx.getEnvironment().getProperty("spring.datasource.url");
+        log.info("Connected to Postgres: {}", postgresUrl);
     }
 }

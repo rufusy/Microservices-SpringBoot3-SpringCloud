@@ -40,7 +40,9 @@ import static reactor.core.publisher.Mono.just;
         properties = {
                 "eureka.client.enabled=false",
                 "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
-                "spring.main.allow-bean-definition-overriding=true"
+                "spring.main.allow-bean-definition-overriding=true",
+                "spring.cloud.stream.default-binder=rabbit",
+                "spring.cloud.config.enabled=false"
         }
 )
 @Import({TestChannelBinderConfiguration.class})
