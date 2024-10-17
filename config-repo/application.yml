@@ -20,11 +20,15 @@ app:
 eureka:
     client:
         service-url.defaultZone: http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/
-        initialInstanceInfoReplicationIntervalSeconds: 5
-        registryFetchIntervalSeconds: 5
+        initialInstanceInfoReplicationIntervalSeconds: 30
+        registryFetchIntervalSeconds: 30
+        eurekaServerConnectTimeoutSeconds: 30
+        eurekaServerReadTimeoutSeconds: 30
+        eurekaServerTotalConnections: 100
+        eurekaServerTotalConnectionsPerHost: 50
     instance:
-        leaseRenewalIntervalInSeconds: 5
-        leaseExpirationDurationInSeconds: 5
+        leaseRenewalIntervalInSeconds: 30
+        leaseExpirationDurationInSeconds: 90
 
 # Spring cloud stream
 spring.cloud.stream.defaultBinder: rabbit

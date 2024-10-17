@@ -83,7 +83,7 @@ The following measures have been implemented to secure the services:
   - Note that HTTPS is applied only to the edge server; plain HTTP is used internally.
 
 - **Basic Authentication**:
-  - The discovery server (Netflix Eureka) requires basic authentication with the credentials: `user/pwd`.
+  - The discovery server (Netflix Eureka) and config server require basic authentication with the credentials: `user/pwd`.
 
 - **OAuth 2.0 and OIDC**:
   - Users and client applications accessing the APIs are authenticated and authorized using OAuth 2.0 and OIDC.
