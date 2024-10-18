@@ -13,6 +13,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.util.Random;
+
 import static java.util.logging.Level.FINE;
 
 @Slf4j
@@ -30,13 +33,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Mono<Product> getProduct(int productId) {
+    public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
 
         if (productId < 1) {
             throw new InvalidInputException("Invalid productId: " + productId);
         }
 
         return repository.findByProductId(productId)
+                .map(e -> throwErrorIfBadLuck(e, faultPercent))
+                .delayElement(Duration.ofSeconds(delay))
                 .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
                 .log(log.getName(), FINE)
                 .map(mapper::entityToApi)
@@ -69,5 +74,32 @@ public class ProductServiceImpl implements ProductService {
     private Product setServiceAddress(Product e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;
+    }
+
+    private ProductEntity throwErrorIfBadLuck(ProductEntity e, int faultPercent) {
+        if (faultPercent == 0) {
+            return e;
+        }
+
+        int randomThreshold = getRandomNumber(1, 100);
+
+        if (faultPercent < randomThreshold) {
+            log.debug("We got lucky, no error occurred, {} < {}", faultPercent, randomThreshold);
+        } else {
+            log.info("Bad luck, an error occurred, {} >= {}", faultPercent, randomThreshold);
+            throw new RuntimeException("Something went wrong...");
+        }
+
+        return e;
+    }
+
+    private final Random randomNumberGenerator = new Random();
+
+    private int getRandomNumber(int min, int max) {
+        if (max < min) {
+            throw new IllegalArgumentException("Max must be greater than min");
+        }
+
+        return randomNumberGenerator.nextInt((max - min) + 1) + min;
     }
 }

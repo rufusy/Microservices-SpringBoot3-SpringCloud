@@ -23,11 +23,13 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Objects;
 
 import static com.rufusy.microservices.api.event.Event.Type.CREATE;
@@ -60,9 +62,10 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
     }
 
     @Override
-    public Mono<Product> getProduct(int productId) {
+    public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
 
-        String url = PRODUCT_SERVICE_URL + "/product/" + productId;
+        URI url = UriComponentsBuilder.fromUriString(PRODUCT_SERVICE_URL
+                + "/product/{productId}?delay={delay}&faultPercent={faultPercent}").build(productId, delay, faultPercent);
 
         log.debug("Will call getProduct API on URL: {}", url);
 
