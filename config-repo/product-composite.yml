@@ -102,6 +102,35 @@ spring.cloud.stream:
 # OAuth 2.0
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
 
+resilience4j.timelimiter.instances:
+    product:
+        timeoutDuration: 2s
+
+resilience4j.retry.instances:
+    product:
+        maxAttempts: 3
+        waitDuration: 1s
+        retryExceptions:
+            - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+
+management.health.circuitbreakers.enabled: true
+
+resilience4j.circuitbreaker.instances:
+    product:
+        allowHealthIndicatorToFail: false
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        ignore-exceptions:
+            - com.rufusy.microservices.api.exceptions.BadRequestException
+            - com.rufusy.microservices.api.exceptions.EventProcessingException
+            - com.rufusy.microservices.api.exceptions.InvalidInputException
+            - com.rufusy.microservices.api.exceptions.NotFoundException
+
 logging:
     level:
         com.netflix.discovery: DEBUG
