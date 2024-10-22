@@ -172,7 +172,7 @@ services:
     zipkin:
         image: openzipkin/zipkin:2.24.0
         restart: always
-        mem_limit: 1024m
+        mem_limit: 512m
         environment:
             - STORAGE_TYPE=mem
         ports:
