@@ -66,9 +66,9 @@ spring.cloud.gateway.routes:
             - RewritePath=/config/(?<segment>.*), /$\{segment}
 
 logging.level:
-    org.springframework.cloud.gateway: trace
+    org.springframework.cloud.gateway: info
     org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
-    org.springframework.web.server.adapter.HttpWebHandlerAdapter: trace
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: info
 
 # OAuth 2.0
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999

@@ -52,6 +52,10 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.retry:spring-retry'
 
+	implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+	implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
+	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot:1.0.5'
+
 	compileOnly "org.projectlombok:lombok:${lombokVerion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVerion}"
 

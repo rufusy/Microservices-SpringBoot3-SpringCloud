@@ -133,8 +133,8 @@ resilience4j.circuitbreaker.instances:
 
 logging:
     level:
-        com.netflix.discovery: DEBUG
-        com.netflix.eureka: DEBUG
+        com.netflix.discovery: info
+        com.netflix.eureka: info
 
 ---
 spring.config.activate.on-profile: docker
