@@ -27,13 +27,13 @@ public class ProductCompositeController implements ProductCompositeResource {
     }
 
     @Override
-    public Mono<ProductAggregate> getProduct(int productId) {
+    public Mono<ProductAggregate> getProduct(int productId, int delay, int faultPercent) {
         log.info("Will get composite product info for product.id={}", productId);
 
         return Mono.zip(values -> createProductAggregate(
                 (Product) values[0], (List<Recommendation>) values[1], (List<Review>) values[2], serviceUtil.getServiceAddress()
                         ),
-                        integration.getProduct(productId),
+                        integration.getProduct(productId, delay, faultPercent),
                         integration.getRecommendations(productId).cast(Recommendation.class).collectList(),
                         integration.getReviews(productId).cast(Review.class).collectList())
                 .doOnError(ex -> log.warn("getCompositeProduct failed: {}", ex.toString()))
