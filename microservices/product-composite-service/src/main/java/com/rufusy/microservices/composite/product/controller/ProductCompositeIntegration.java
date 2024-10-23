@@ -59,13 +59,13 @@ public class ProductCompositeIntegration implements ProductResource, Recommendat
             ObjectMapper mapper,
             StreamBridge streamBridge,
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
-            WebClient.Builder webClientBuilder,
+            WebClient webClient,
             ServiceUtil serviceUtil) {
 
         this.mapper = mapper;
         this.streamBridge = streamBridge;
         this.publishEventScheduler = publishEventScheduler;
-        this.webClient = webClientBuilder.build();
+        this.webClient = webClient;
         this.serviceUtil = serviceUtil;
     }
 

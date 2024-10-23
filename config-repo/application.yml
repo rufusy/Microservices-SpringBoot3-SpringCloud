@@ -8,7 +8,9 @@ management.endpoints.web.exposure.include: "*"
 # Logging
 logging.level:
     root: info
-    com.rufusy: debug
+    com.rufusy: info
+
+logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 app:
     eureka-server: localhost
@@ -42,6 +44,10 @@ spring.rabbitmq:
 spring.cloud.stream.kafka.binder:
     brokers: 127.0.0.1
     defaultBrokerPort: 9092
+
+# zipkin
+management.zipkin.tracing.endpoint: http://zipkin:9411/api/v2/spans
+management.tracing.sampling.probability: 1.0
 
 ---
 spring.config.activate.on-profile: docker

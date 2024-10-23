@@ -29,7 +29,7 @@ spring.cloud.stream.kafka.bindings.messageProcessor-in-0.consumer:
 
 
 # Logging
-logging.level.org.springframework.data.mongodb.core.ReactiveMongoTemplate: debug
+logging.level.org.springframework.data.mongodb.core.ReactiveMongoTemplate: info
 
 ---
 spring.config.activate.on-profile: docker
